@@ -1,2 +1,2 @@
-# study_project
-Basic library for math, machine learning, computer vision
+# MATEL
+Multimedia Application and Technology Extended Library
