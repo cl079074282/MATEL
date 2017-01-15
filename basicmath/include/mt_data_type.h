@@ -77,6 +77,8 @@ namespace basicmath {
 		mt_Conv_Boundary_Type_Same,
 	};
 
+	static const wstring mt_Conv_Boundary_Type_Descriptions[] = {L"valid", L"full", L"same"};
+
 	enum mt_Pooling_Type{
 		mt_Pooling_Type_Mean,
 		mt_Pooling_Type_Max,
@@ -84,6 +86,8 @@ namespace basicmath {
 		mt_Pooling_Type_Sum,
 		mt_Pooling_Type_First_Value,		
 	};
+
+	static const wstring mt_Pooling_Type_Descriptions[] = {L"mean", L"max", L"min", L"first_value"};
 
 	enum mt_Dist_Type {
 		mt_Dist_Type_L1,
@@ -101,6 +105,7 @@ namespace basicmath {
 	};
 
 	enum mt_Loss_Type {
+		mt_Loss_Type_0_1,
 		mt_Loss_Type_Quardratic,
 		mt_Loss_Type_Logarithmic,
 	};

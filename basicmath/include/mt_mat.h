@@ -472,6 +472,8 @@ class mt_mat {
 		mt_mat& self_activate(mt_Activate_Type type, const vector<f64>& activate_params);
 		mt_mat& self_activate(mt_Activate_Type type, i32 activate_param_size, const f64* activate_params);
 
+		void eigen(mt_mat& eigen_value, mt_mat& eigen_vectors) const;
+
 	protected:
 
 		friend class mt_mat_helper;

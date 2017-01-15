@@ -370,8 +370,32 @@ namespace basicmath {
 		}
 
 		template<class T>
+		static mt_mat quardratic_loss() {
+
+		}
+
+		template<class T>
+		static mt_mat logarithmic_loss() {
+
+		}
+
+		template<class T>
 		static mt_mat loss(const mt_mat& src, const mt_mat& matching_mat, mt_Loss_Type type) {
+			switch (type) {
+			case mt_Loss_Type_Quardratic:
+
+				break;
+			case mt_Loss_Type_Logarithmic:
+				break;
+			}
+
 			return mt_mat();
+		}
+
+		template<class T>
+		static void eigen(mt_mat& eigen_value, mt_mat& eigen_vector, const mt_mat& mat) {
+			//TODO 
+		
 		}
 	};
 
@@ -1067,4 +1091,20 @@ mt_mat mt_mat::exp() const {
 	}
 
 	return res;
+}
+
+void mt_mat::eigen(mt_mat& eigen_value, mt_mat& eigen_vector) const {
+	basiclog_assert2(dim() == 2);
+	basiclog_assert2(depth_channel() == mt_F32C1 || depth_channel() == mt_F64C1);
+
+	if (is_min_abs_step_equal_element_size() || is_step_positive() || step()[0] < step()[1]) {
+		clone().eigen(eigen_value, eigen_vector);
+		return;
+	}
+
+	if (depth() == mt_F32) {
+		private_math_operation::eigen<f32>(eigen_value, eigen_vector, *this);
+	} else {
+		private_math_operation::eigen<f64>(eigen_value, eigen_vector, *this);
+	}
 }
