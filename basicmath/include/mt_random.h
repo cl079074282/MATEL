@@ -18,7 +18,7 @@ namespace basicmath {
 		
 		static mt_mat random_uniform_iid(i32 dims, const i32* sizes, i32 depth_channel, f64 min = 0.0, b8 min_opened = sys_true, f64 max = 1.0, b8 max_opened = sys_true);
 
-		static void randperm(i32 size, vector<i32>& results);
+		static void randperm(vector<i32>& results, i32 size);
 
 		static void randSample(i32 size, vector<i32>& results);
 

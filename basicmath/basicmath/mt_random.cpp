@@ -61,7 +61,7 @@ mt_mat mt_random::random_uniform_iid(i32 dims, const i32* sizes, i32 depth_chann
 	return mat;
 }
 
-void mt_random::randperm(i32 size, vector<i32>& results) {
+void mt_random::randperm(vector<i32>& results, i32 size) {
 	results.resize(size, 0);
 
 	for (i32 i = 0; i < (i32)results.size(); ++i) {

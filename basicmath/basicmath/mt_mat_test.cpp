@@ -311,7 +311,7 @@ static void test_mat_channel() {
 	basiclog_info2(channels[0]);
 	basiclog_info2(channels[1]);
 
-	sys_test_equal(mt_mat_helper::combine_mat_as_channel(channels), mat_33);
+	sys_test_equal(mt_mat_helper::merge_align_channel(channels), mat_33);
 }
 
 static void test_reshape() {

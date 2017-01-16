@@ -1,3 +1,9 @@
+/** @file basicmath.h
+
+Export head file.
+Other project should include this head file to use the features of BasicMath. 
+*/
+
 #pragma once
 
 #include "mt_data_type.h"

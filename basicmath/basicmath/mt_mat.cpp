@@ -746,7 +746,15 @@ mt_mat mt_mat::reshape(const vector<int>& sizes) const {
 }
 
 mt_mat mt_mat::reshape(int dims, const int* sizes) const {
-	basiclog_assert2(is_continuous());
+	if (!is_continuous()) {
+		basiclog_warning(basiclog_performance_warning, L"current mat is not continuous, hence we need to clone one mat to reshape it!");
+		return clone().reshape(dims, sizes);
+	}
+
+	i32 current_total_size = mt_helper::mutiply<i32>(size(), size() + dim());
+	i32 reshape_total_size = mt_helper::mutiply<i32>(sizes, sizes + dims);
+
+	basiclog_assert2(current_total_size * reshape_total_size);
 
 	mt_mat res;
 	res.m_dims = dims;

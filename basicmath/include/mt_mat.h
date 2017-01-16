@@ -226,6 +226,9 @@ class mt_mat {
 			return size() + m_dims;
 		}
 
+		/**
+		@note An element may contains multiple channels.
+		*/
 		int element_number() const;
 		int element_size() const;
 		int element_channel_size() const;

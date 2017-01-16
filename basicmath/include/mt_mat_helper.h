@@ -506,8 +506,6 @@ namespace basicmath {
 		static void max_out(vector<mt_mat>& res, vector<mt_mat>& max_indexes, const vector<mt_mat>& src, int k);
 		static void restore_max_out(vector<mt_mat>& src, int src_number, const vector<mt_mat>& max_res, vector<mt_mat>& max_indexes);
 
-		static mt_mat combine_mat_as_channel(vector<mt_mat>& channels);
-
 		static int get_mkl_conv_calculate_type(const mt_mat& src, const mt_mat& kernel);
 
 		static int get_conv_result_size(int src_size, int kernel_size, int stride, mt_Conv_Boundary_Type boundary_type);
@@ -516,12 +514,14 @@ namespace basicmath {
 		static int get_pooling_result_size(int src_size, int kernel_size, int stride);
 		static void get_pooling_result_size(i32 dims, i32* res_sizes, const i32* src_sizes, const i32* kernel_sizes, const i32* stride_sizes);
 
-		static void add(mt_mat& res, const vector<mt_mat>& elements);
+		static mt_mat add(const vector<mt_mat>& elements);
 
-		static void dot(mt_mat& res, const vector<mt_mat>& elements);
+		static mt_mat dot(const vector<mt_mat>& elements);
 
 		static mt_mat conv(const vector<mt_mat>& srcs, const vector<mt_mat>& ketnels, mt_Conv_Boundary_Type boundary_type = mt_Conv_Boundary_Type_Valid, const int* conv_strides = NULL);
-		static void conv(mt_mat& res, const vector<mt_mat>& srcs, const vector<mt_mat>& ketnels, mt_Conv_Boundary_Type boundary_type = mt_Conv_Boundary_Type_Valid, const int* conv_strides = NULL);
+
+		static mt_mat merge_align_dim(const vector<mt_mat>& elements, i32 dim);
+		static mt_mat merge_align_channel(const vector<mt_mat>& channels);
 
 		static void save(const wstring& file_path, const mt_mat& mat, b8 text_file = sys_true);
 		static void save(sys_buffer_writer* writer, const mt_mat& mat);

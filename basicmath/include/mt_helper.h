@@ -124,6 +124,15 @@ namespace basicmath {
 			}
 		}
 
+		template<class T>
+		static void sub_vector(vector<T>& sub, const vector<T>& src, const mt_range& range) {
+			sub.resize(range.size());
+
+			for (i32 i = range.m_start; i < range.m_end; ++i) {
+				sub[i - range.m_start] = src[i];
+			}
+		}
+
 		static i32 index_from_multi_index(const vector<i32>& indexs, i32 size, const i32* sizes) {
 			basiclog_assert2((i32)indexs.size() == size);
 
@@ -169,6 +178,47 @@ namespace basicmath {
 		static i32 combination(i32 n, i32 k) {
 			basiclog_assert2(n >= k);
 			return factorial(n) / (factorial(k) * factorial(n - k));
+		}
+
+
+		template<class T>
+		static T add(const T* start, const T* stop) {
+			T res = 0;
+
+			for (const T* iter = start; iter != stop; ++iter) {
+				res += *iter;
+			}
+
+			return res;
+		}
+
+		template<class T>
+		static T add(const vector<T>& elements) {
+			if (elements.empty()) {
+				return 0;
+			}
+
+			return add(&elements[0], &elements[0] + (i32)elements.size());
+		}
+
+		template<class T>
+		static T mutiply(const T* start, const T* stop) {
+			T res = 1;
+
+			for (const T* iter = start; iter != stop; ++iter) {
+				res *= *iter;
+			}
+
+			return res;
+		}
+
+		template<class T>
+		static T mutiply(const vector<T>& elements) {
+			if (elements.empty()) {
+				return 0;
+			}
+
+			return mutiply(&elements[0], &elements[0] + (i32)elements.size());
 		}
 	};
 

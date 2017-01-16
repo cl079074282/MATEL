@@ -80,11 +80,11 @@ i32 mt_mat_helper::depth_channel_i32(const wstring& depth_channel) {
 	return mt_make_depth_channel(depth, channel);
 }
 
-mt_mat mt_mat_helper::combine_mat_as_channel(vector<mt_mat>& channels) {
+mt_mat mt_mat_helper::merge_align_channel(const vector<mt_mat>& channels) {
 	int dims = channels.front().dim();
 	int depth = channels.front().depth();
 
-	i32* sizes = channels.front().size();
+	const i32* sizes = channels.front().size();
 
 	mt_mat res(dims, sizes, mt_make_depth_channel(depth, (i32)channels.size()));
 
@@ -180,7 +180,7 @@ mt_mat mt_mat_helper::load(sys_buffer_reader* buffer) {
 	return res;
 }
 
-void mt_mat_helper::add(mt_mat& res, const vector<mt_mat>& elements) {
+mt_mat mt_mat_helper::add(const vector<mt_mat>& elements) {
 	mt_auto_derivative* auto_derivative = NULL;
 
 	for (i32 i = 0; i < (i32)elements.size(); ++i) {
@@ -193,6 +193,7 @@ void mt_mat_helper::add(mt_mat& res, const vector<mt_mat>& elements) {
 		}
 	}
 
+	mt_mat res(elements[0], mt_mat::Construct_Type_Create_As_Size);
 	res.set(elements[0]);
 
 	for (i32 i = 1; i < (i32)elements.size(); ++i) {
@@ -206,9 +207,11 @@ void mt_mat_helper::add(mt_mat& res, const vector<mt_mat>& elements) {
 			elements[i].m_auto_derivative = auto_derivative;
 		}
 	}
+
+	return res;
 }
 
-void mt_mat_helper::dot(mt_mat& res, const vector<mt_mat>& elements) {
+mt_mat mt_mat_helper::dot(const vector<mt_mat>& elements) {
 	mt_auto_derivative* auto_derivative = NULL;
 
 	for (i32 i = 0; i < (i32)elements.size(); ++i) {
@@ -221,6 +224,7 @@ void mt_mat_helper::dot(mt_mat& res, const vector<mt_mat>& elements) {
 		}
 	}
 
+	mt_mat res(elements[0], mt_mat::Construct_Type_Create_As_Size);
 	res.set(elements[0]);
 
 	for (i32 i = 1; i < (i32)elements.size(); ++i) {
