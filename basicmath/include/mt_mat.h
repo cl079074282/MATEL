@@ -53,7 +53,7 @@ class mt_mat {
 			m_auto_derivative = NULL;
 		}
 
-		mt_auto_derivative* get_auto_derivative() const {
+		mt_auto_derivative* auto_derivative() const {
 			return m_auto_derivative;
 		}
 
@@ -66,6 +66,8 @@ class mt_mat {
 		}
 			 
 		mt_mat derivative(const mt_mat& other) const;
+		vector<mt_mat> derivative(const vector<mt_mat>& others) const;
+		void derivative(vector<mt_mat>& reses, const vector<mt_mat>& others) const;
 		
 
 		b8 empty() const;
@@ -167,13 +169,10 @@ class mt_mat {
 		mt_mat split_dim(int dim, int splited_dims, int* splited_sizes) const;
 		mt_mat combine_dim(int combined_dim_start, int combined_dim_count) const;
 
-		mt_mat repeat(i32 nrows) const;
-		mt_mat repeat(i32 nrows, i32 ncols) const;
-		mt_mat repeat(i32 nplanes, i32 nrows, i32 ncols) const;
+		mt_mat repeat(i32 nsize, i32 dim = 0) const;
 		mt_mat repeat(const vector<i32>& nsizes) const;
 		mt_mat repeat(i32 dims, const i32* nsizes) const;
 		
-
 
 		mt_mat t() const;
 		mt_mat swap_dim(int dim_a, int dim_b) const;
@@ -188,7 +187,7 @@ class mt_mat {
 		mt_mat channel_as_last_dim() const;
 		mt_mat last_dim_as_channel() const;
 
-		void split(vector<mt_mat>& channels) const;
+		void split(vector<mt_mat>& channels, b8 can_share_memory = sys_true) const;
 		mt_mat channel_at(int channel) const;
 
 		int depth() const {
@@ -476,6 +475,19 @@ class mt_mat {
 		mt_mat& self_activate(mt_Activate_Type type, i32 activate_param_size, const f64* activate_params);
 
 		void eigen(mt_mat& eigen_value, mt_mat& eigen_vectors) const;
+
+		enum Reduce_Type {
+			Reduce_Type_Sum,
+			Reduce_Type_Mean,
+			Reduce_Type_Max,
+			Reduce_Type_Min,
+			Reduce_Type_Variance,
+			Reduce_Type_Unbias_Variance,
+			Reduce_Type_Standard_Variance,
+			Reduce_Type_Standard_Unbias_Variance
+		};
+
+		mt_mat reduce(Reduce_Type type, i32 reduce_dim) const;
 
 	protected:
 

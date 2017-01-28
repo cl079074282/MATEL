@@ -520,13 +520,15 @@ namespace basicmath {
 
 		static mt_mat conv(const vector<mt_mat>& srcs, const vector<mt_mat>& ketnels, mt_Conv_Boundary_Type boundary_type = mt_Conv_Boundary_Type_Valid, const int* conv_strides = NULL);
 
-		static mt_mat merge_align_dim(const vector<mt_mat>& elements, i32 dim);
-		static mt_mat merge_align_channel(const vector<mt_mat>& channels);
+		static mt_mat merge_align_dim(const vector<mt_mat>& elements, i32 dim, b8 can_share_memory = sys_true);
+		static mt_mat merge_align_channel(const vector<mt_mat>& channels, b8 can_share_memory = sys_true);
 
 		static void save(const wstring& file_path, const mt_mat& mat, b8 text_file = sys_true);
 		static void save(sys_buffer_writer* writer, const mt_mat& mat);
 		static mt_mat load(const wstring& file_path, b8 text_file = sys_true);
 		static mt_mat load(sys_buffer_reader* reader);
+
+
 
 	//static 
 	};

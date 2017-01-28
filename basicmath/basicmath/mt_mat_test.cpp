@@ -326,13 +326,13 @@ static void test_repeat() {
 	mt_mat a = mt_mat(2, 2, mt_U8).set_incremental(0);
 	mt_mat b = mt_mat_t<u8>(2, 4, 1).read(0, 1, 0, 1, 2, 3, 2, 3);
 
-	sys_test_equal(a.repeat(1, 2), b);
+	sys_test_equal(a.repeat(2, 1), b);
 
-	basiclog_info2(a.repeat(1, 2));
+	basiclog_info2(a.repeat(2, 1));
 	basiclog_info2(b);
 
 	mt_mat c = a.increase_dim(0);
-	basiclog_info2(c.repeat(2, 1, 1));
+	basiclog_info2(c.repeat(2, 0));
 }
 
 static void test_save_mat() {

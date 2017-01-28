@@ -80,7 +80,11 @@ i32 mt_mat_helper::depth_channel_i32(const wstring& depth_channel) {
 	return mt_make_depth_channel(depth, channel);
 }
 
-mt_mat mt_mat_helper::merge_align_channel(const vector<mt_mat>& channels) {
+mt_mat mt_mat_helper::merge_align_channel(const vector<mt_mat>& channels, b8 can_share_memory) {
+	if ((i32)channels.size() == 1 && can_share_memory) {
+		return channels[0];
+	}
+
 	int dims = channels.front().dim();
 	int depth = channels.front().depth();
 

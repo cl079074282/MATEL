@@ -864,18 +864,18 @@ mt_mat mt_mat::combine_dim(int combined_dim_start, int combined_dim_count) const
 	return res;
 }
 
-mt_mat mt_mat::repeat(i32 nrows) const {
-	return repeat(1, &nrows);
-}
+mt_mat mt_mat::repeat(i32 nsize, i32 dim) const {
+	basicmath_mat_request_memory(i32, nsizes, this->dim());
 
-mt_mat mt_mat::repeat(i32 nrows, i32 ncols) const {
-	i32 nsizes[] = {nrows, ncols};
-	return repeat(2, nsizes);
-}
+	for (i32 i = 0; i < this->dim(); ++i) {
+		nsizes[i] = 1;
+	}
 
-mt_mat mt_mat::repeat(i32 nplanes, i32 nrows, i32 ncols) const {
-	i32 nsizes[] = {nplanes, nrows, ncols};
-	return repeat(3, nsizes);
+	nsizes[dim] = nsize;
+	
+	return repeat(this->dim(), nsizes);
+
+	basicmath_mat_release(nsizes);
 }
 
 mt_mat mt_mat::repeat(const vector<i32>& nsizes) const {
@@ -949,7 +949,7 @@ void mt_mat::fill_auto_step() {
 }
 
 void mt_mat::on_vaule_changed() {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_enable_math_operation());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
 }
 
 mt_mat mt_mat::flip(int dim) const {
@@ -1050,11 +1050,15 @@ mt_mat mt_mat::last_dim_as_channel() const {
 	return res;
 }
 
-void mt_mat::split(vector<mt_mat>& channels) const {
+void mt_mat::split(vector<mt_mat>& channels, b8 can_share_memory) const {
 	channels.resize(channel());
 
-	sys_for(i, channels) {
-		channels[i] = channel_at(i).clone();
+	if (channel() == 1 && can_share_memory) {
+		channels[0] = *this;
+	} else {
+		sys_for(i, channels) {
+			channels[i] = channel_at(i).clone();
+		}
 	}
 }
 

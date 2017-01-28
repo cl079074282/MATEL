@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mt_scalar_t.h"
+#include "mt_range.h"
 
 namespace basicmath {
 

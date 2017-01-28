@@ -21,7 +21,15 @@ namespace basicmath {
 		/** res = derivative src / derivative target
 		*/
 		mt_mat derivate(const mt_mat& target, const mt_mat& src);
+		mt_mat derivate(const mt_mat& target, const vector<mt_mat>& srcs);
 
+		void derivate(vector<mt_mat>& reses, const vector<mt_mat>& targets, const mt_mat& src);
+
+		void derivate(vector<mt_mat>& reses, const vector<mt_mat>& targets, const vector<mt_mat>& srcs);
+
+		vector<mt_mat> derivate(vector<mt_mat>& targets, const mt_mat& src);
+
+		vector<mt_mat> derivate(vector<mt_mat>& targets, const vector<mt_mat>& srcs);
 
 		/**
 		@note all variable must be represented as mt_mat, here b is a const value!
@@ -50,8 +58,8 @@ namespace basicmath {
 		/**
 		@param enable = sys_true indicates the auto_derivative instance will record the math operation in the derivative tree.
 		*/
-		void enable_math_operation(b8 enable);
-		b8 is_enable_math_operation() const; 
+		void record_math_operation(b8 enable);
+		b8 is_math_operation_recorded() const; 
 
 
 		void reset();

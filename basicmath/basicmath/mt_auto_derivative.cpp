@@ -8,7 +8,7 @@ mt_auto_derivative::~mt_auto_derivative() {
 }
 
 mt_mat mt_auto_derivative::derivate(const mt_mat& target, const mt_mat& src) {
-	basiclog_assert2(target.get_auto_derivative() != NULL && target.get_auto_derivative() == src.get_auto_derivative());
+	basiclog_assert2(target.auto_derivative() != NULL && target.auto_derivative() == src.auto_derivative());
 
 	mt_mat res(target, mt_mat::Construct_Type_Create_As_Size);
 
@@ -35,6 +35,46 @@ mt_mat mt_auto_derivative::derivate(const mt_mat& target, const mt_mat& src) {
 	}
 
 	return res;
+}
+
+mt_mat mt_auto_derivative::derivate(const mt_mat& target, const vector<mt_mat>& srcs) {
+	mt_mat res = derivate(target, srcs[0]);
+
+	for (i32 i = 1; i < (i32)srcs.size(); ++i) {
+		res += derivate(target, srcs[i]);
+	}
+}
+
+void mt_auto_derivative::derivate(vector<mt_mat>& reses, const vector<mt_mat>& targets, const mt_mat& src) {
+	reses.resize(targets.size());
+
+	for (i32 i = 0; i < (i32)targets.size(); ++i) {
+		reses[i] = derivate(targets[i], src);
+	}
+}
+
+vector<mt_mat> mt_auto_derivative::derivate(vector<mt_mat>& targets, const mt_mat& src) {
+	vector<mt_mat> reses;
+	derivate(reses, targets, src);
+
+	return reses;
+}
+
+void mt_auto_derivative::derivate(vector<mt_mat>& reses, const vector<mt_mat>& targets, const vector<mt_mat>& srcs) {
+	derivate(reses, targets, srcs[0]);
+
+	for (i32 i = 1; i < (i32)srcs.size(); ++i) {
+		for (i32 j = 0; j < (i32)targets.size(); ++j) {
+			reses[j] += derivate(targets[i], srcs[i]);
+		}
+	}
+}
+
+vector<mt_mat> mt_auto_derivative::derivate(vector<mt_mat>& targets, const vector<mt_mat>& srcs) {
+	vector<mt_mat> reses;
+	derivate(reses, targets, srcs);
+
+	return reses;
 }
 
 void mt_auto_derivative::add(const mt_mat& res, const mt_mat& a, const vector<double>& b) {
@@ -111,11 +151,11 @@ void mt_auto_derivative::exp(const mt_mat& res, const mt_mat& src) {
 
 }
 
-void mt_auto_derivative::enable_math_operation(b8 enable) {
+void mt_auto_derivative::record_math_operation(b8 enable) {
 	m_enable_math_operation = enable;
 }
 
-b8 mt_auto_derivative::is_enable_math_operation() const {
+b8 mt_auto_derivative::is_math_operation_recorded() const {
 	return m_enable_math_operation;
 }
 
