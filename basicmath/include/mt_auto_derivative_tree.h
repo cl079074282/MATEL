@@ -353,4 +353,26 @@ namespace basicmath {
 
 		f64 m_number;
 	};
+
+	class mt_ad_activate_tree_node : public mt_ad_mat_tree_node {
+	public:
+
+		mt_ad_activate_tree_node(const mt_mat& res, mt_ad_tree_node* src, mt_Activate_Type type) {
+			init_construct(res, src);
+
+			m_activate_type = type;
+		}
+
+		mt_Operation_Type op_type() {
+			return mt_Operation_Type_Activate;
+		}
+
+	protected:
+
+		void derivate_child_on_operation( mt_ad_mat_tree_node* child_node);
+		mt_mat softmax_derivate(const mt_mat& softmax_res);
+		mt_mat relu_derivate(const mt_mat& relu_res);
+
+		mt_Activate_Type m_activate_type;
+	};
 }

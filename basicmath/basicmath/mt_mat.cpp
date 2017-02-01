@@ -183,7 +183,7 @@ mt_mat::mt_mat(const vector<i32>& sizes, i32 depth_channel, u8* data, const vect
 		mt_mat::mt_mat((i32)sizes.size(), &sizes[0], depth_channel, data, steps.empty() ? NULL : &steps[0]);
 }
 
-mt_mat::mt_mat(const mt_mat& other, Construct_Type type)
+mt_mat::mt_mat(const mt_mat& other, Construct_Type type, const mt_scalar init_value)
 	: m_data(NULL)
 	, m_modified_number(NULL)
 	, m_reference(NULL)
@@ -198,6 +198,7 @@ mt_mat::mt_mat(const mt_mat& other, Construct_Type type)
 			*this = other;
 		} else {
 			*this = s_mat_cache.get(other.dim(), other.size(), other.depth_channel());
+			set(init_value);
 		}
 }
 

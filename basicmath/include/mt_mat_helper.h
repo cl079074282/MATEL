@@ -177,7 +177,7 @@ namespace basicmath {
 		}
 
 		template<class T>
-		static void iteration_operation(mt_array_element_iterator& res, mt_array_element_const_iterator& a, const vector<double>& b, int channels, Math_Op_Code code) {
+		static void iteration_operation(mt_array_element_iterator& res, const vector<double>& b, mt_array_element_const_iterator& a, int channels, Math_Op_Code code) {
 			for (;;) {
 				const T* ptr_a = (const T*)a.data();
 				T* ptr_res = (T*)res.data();
@@ -189,16 +189,16 @@ namespace basicmath {
 				for (int c = 0; c < channels; ++c) {
 					switch (code) {
 					case basicmath::mt_mat_helper::Math_Op_Code_Add:
-						ptr_res[c] = ptr_a[c] + (T)b[c];
+						ptr_res[c] = (T)b[c] + ptr_a[c];
 						break;
 					case basicmath::mt_mat_helper::Math_Op_Code_Subtract:
-						ptr_res[c] = ptr_a[c] - (T)b[c];
+						ptr_res[c] = (T)b[c] - ptr_a[c];
 						break;
 					case basicmath::mt_mat_helper::Math_Op_Code_Dot_Mul:
-						ptr_res[c] = ptr_a[c] * (T)b[c];
+						ptr_res[c] = (T)b[c] * ptr_a[c];
 						break;
 					case basicmath::mt_mat_helper::Math_Op_Code_Dot_Div:
-						ptr_res[c] = ptr_a[c] / (T)b[c];
+						ptr_res[c] = (T)b[c] / ptr_a[c];
 						break;
 					case basicmath::mt_mat_helper::Math_Op_Code_Pow:
 						ptr_res[c] = (T)pow(ptr_a[c], b[c]);
@@ -258,7 +258,7 @@ namespace basicmath {
 			}
 		}
 
-		static void mat_operation(mt_mat& res, const mt_mat& a, const vector<double>& b, Math_Op_Code code) {
+		static void mat_operation(mt_mat& res, const vector<double>& b, const mt_mat& a, Math_Op_Code code) {
 			if (code != Math_Op_Code_Pow && code != Math_Op_Code_Exp) {
 				basiclog_assert2(a.channel() == (i32)b.size());
 			}
@@ -268,34 +268,34 @@ namespace basicmath {
 
 			switch (a.depth()) {
 			case mt_U8:
-				iteration_operation<u8>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<u8>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			case mt_S8:
-				iteration_operation<i8>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<i8>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			case mt_U16:
-				iteration_operation<u16>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<u16>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			case mt_S16:
-				iteration_operation<i16>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<i16>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			case mt_U32:
-				iteration_operation<u32>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<u32>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			case mt_S32:
-				iteration_operation<i32>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<i32>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			case mt_U64:
-				iteration_operation<u64>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<u64>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			case mt_S64:
-				iteration_operation<i64>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<i64>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			case mt_F32:
-				iteration_operation<f32>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<f32>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			case mt_F64:
-				iteration_operation<f64>(res_iter, iter_a, b, a.channel(), code);
+				iteration_operation<f64>(res_iter, b, iter_a, a.channel(), code);
 				break;
 			default:
 				basiclog_unsupport2();

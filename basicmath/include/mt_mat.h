@@ -37,7 +37,7 @@ class mt_mat {
 			Construct_Type_Create_As_Size,
 		};
 
-		mt_mat(const mt_mat& other, Construct_Type type = Construct_Type_Operator_Equal);
+		mt_mat(const mt_mat& other, Construct_Type type = Construct_Type_Operator_Equal, const mt_scalar init_value = mt_scalar());
 		mt_mat(const mt_mat& other, i32 dims, const mt_range* ranges);
 		mt_mat(const mt_mat& other, const vector<mt_range>& ranges);
 		mt_mat(const mt_mat& other, const mt_range& range, i32 dim = 0);
@@ -343,14 +343,14 @@ class mt_mat {
 		}
 
 		template<class T>
-		T* ptr(i32 index1, i32 index2, i32 index3, i32 channel = 0) {
+		T* ptr(i32 index1, i32 index2, i32 index3, i32 channel) {
 			on_vaule_changed();
 			i32 indexes[] = {index1, index2, index3};
 			return ptr<T>(3, indexes, channel);
 		}
 
 		template<class T>
-		const T* ptr(i32 index1, i32 index2, i32 index3, i32 channel = 0) const {
+		const T* ptr(i32 index1, i32 index2, i32 index3, i32 channel) const {
 			i32 indexes[] = {index1, index2, index3};
 			return ptr<T>(3, indexes, channel);
 		}
@@ -457,6 +457,15 @@ class mt_mat {
 
 		mt_mat conv(const mt_mat& kernel, mt_Conv_Boundary_Type boundary_type = mt_Conv_Boundary_Type_Valid, const int* conv_strides = NULL) const;
 		
+		/** Calculate loss for current mat and the matching_mat.
+
+		For mt_Loss_Type_Quardratic loss, the current and matching_mat can be any dimensions, while for mt_Loss_Type_0_1 and mt_Loss_Type_Logarithmic losses, 
+		the current mat and the matching_mat must be 2-d, where each line represents a label of a sample.
+
+		@param matching_mat The matching mat.
+		@param type @see mt_Loss_Type.
+		@return Loss result 1 * 1 mat.
+		*/
 		mt_mat loss(const mt_mat& mathcing_mat, mt_Loss_Type type) const;
 
 		//double calculate_dist(const mt_mat& other, mt_Dist_Type dist_type) const;
@@ -524,4 +533,22 @@ class mt_mat {
 	void write(basicsys::sys_strcombine& str, const mt_mat& data);
 	void write(basicsys::sys_json_writer& writer, const mt_mat& data);
 	void read(mt_mat& data, const basicsys::sys_json_reader& reader);
+
+	mt_mat operator-(const mt_mat& mat);
+
+	mt_mat operator+(f64 value, const mt_mat& mat);
+	mt_mat operator-(f64 value, const mt_mat& mat);
+	mt_mat operator*(f64 value, const mt_mat& mat);
+	mt_mat operator/(f64 value, const mt_mat& mat);
+
+	mt_mat operator+(const mt_scalar& value, const mt_mat& mat);
+	mt_mat operator-(const mt_scalar& value, const mt_mat& mat);
+	mt_mat operator*(const mt_scalar& value, const mt_mat& mat);
+	mt_mat operator/(const mt_scalar& value, const mt_mat& mat);
+
+	mt_mat operator+(const vector<f64>& value, const mt_mat& mat);
+	mt_mat operator-(const vector<f64>& value, const mt_mat& mat);
+	mt_mat operator*(const vector<f64>& value, const mt_mat& mat);
+	mt_mat operator/(const vector<f64>& value, const mt_mat& mat);
+	
 }
