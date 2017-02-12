@@ -85,20 +85,13 @@ Mat cv_img::from_basiccv(const mt_mat& mat, b8 deep_copy /* = sys_false */) {
 	}
 }
 
-void cv_img::resize(basicmath::mt_mat& dst, const basicmath::mt_mat& src, const mt_size& dst_size, Inter_Type type /* = Inter_Type_Cubic */) {
-	if (dst.get_auto_derivative() != NULL) {
-		basiclog_warning2(L"dst mat join the auto derivative, resize may casue unexpectation result!");
-	}
+basicmath::mt_mat cv_img::resize(const basicmath::mt_mat& src, const mt_size& dst_size, Inter_Type type /* = Inter_Type_Cubic */) {
 
-	if (&dst == &src) {
-		mt_mat temp;
-		resize(temp, src, dst_size, type);
-		dst = temp;
-	} else {
-		dst.create(dst_size.m_height, dst_size.m_width, src.depth_channel());
-		Mat cv_dst_mat = from_basiccv(dst, sys_false);
-		Mat cv_src_mat = from_basiccv(src, sys_false);
+	basicmath::mt_mat dst(dst_size.m_height, dst_size.m_width, src.depth_channel());
+	Mat cv_dst_mat = from_basiccv(dst, sys_false);
+	Mat cv_src_mat = from_basiccv(src, sys_false);
 
-		cv::resize(cv_src_mat, cv_dst_mat, Size(dst_size.m_width, dst_size.m_height), 0, 0, (i32)type);
-	}
+	cv::resize(cv_src_mat, cv_dst_mat, Size(dst_size.m_width, dst_size.m_height), 0, 0, (i32)type);
+
+	return dst;
 }
