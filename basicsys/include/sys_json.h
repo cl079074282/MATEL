@@ -169,8 +169,6 @@ namespace basicsys {
 			} else if (!is_map()) {
 				val.push_back(T());
 				(*this)>>val.back();
-			} else {
-				basiclog_assert2(sys_false);
 			}
 		}
 
