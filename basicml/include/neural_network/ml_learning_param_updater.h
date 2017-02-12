@@ -17,6 +17,8 @@ namespace basicml {
 	class ml_learning_param_updater {
 	public:
 
+		basicsys_class_name_method(ml_learning_param_updater)
+
 		ml_learning_param_updater() {
 			m_init_type = ml_Learning_Param_Init_Type_Gaussian;
 			m_init_params.push_back(0);
@@ -36,7 +38,7 @@ namespace basicml {
 			init(learning_params);
 		}
 
-		virtual void init(vector<mt_mat>& learning_params);
+		virtual void init(vector<mt_mat>& learning_params) = 0;
 
 		void set_init_config(ml_Learning_Param_Init_Type type, const vector<f64>& params) {
 			m_init_type = type;
@@ -56,7 +58,7 @@ namespace basicml {
 		virtual ml_bsgd_learning_param_updater* to_bsgd_updater() {return NULL;}
 		const virtual ml_bsgd_learning_param_updater* to_bsgd_updater() const {return NULL;}
 
-		virtual void write(sys_json_writer& writer, b8 write_learned_param) const;
+		virtual void write(sys_json_writer& writer, b8 write_learned_param) const = 0;
 		static ml_learning_param_updater* read(const sys_json_reader& reader);
 
 	protected:

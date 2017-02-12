@@ -66,3 +66,11 @@ void ml_nn_linked_layer::set_output(ml_nn_data_layer* output) {
 	m_output = output;
 	m_output->m_prev_linked_layers.push_back(this);
 }
+
+void ml_nn_linked_layer::write(sys_json_writer& writer, b8 write_learned_param /* = sys_true */) const {
+
+}
+
+ml_nn_linked_layer* ml_nn_linked_layer::read(const sys_json_reader& reader) {
+	return NULL;
+}

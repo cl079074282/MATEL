@@ -20,14 +20,15 @@ namespace basicml {
 
 		ml_nn_layer* clone() const;
 
-		virtual bool has_learned_param() const {return true;}
-
 		void set_regular_term(f64 term) {
 			m_regular_term = term;
 		}
 
 		virtual ml_nn_batch_norm_linked_layer* to_batch_norm_linked_layer() {return this;}
 		virtual const ml_nn_batch_norm_linked_layer* to_batch_norm_linked_layer() const {return this;}
+
+		virtual void write(sys_json_writer& writer, b8 write_learned_param = sys_true) const;
+		static ml_nn_batch_norm_linked_layer* read(const sys_json_reader& reader);
 
 	protected:
 

@@ -32,7 +32,7 @@ void ml_neural_network::write(const wstring& path, b8 text_type, b8 write_learne
 	}
 }
 
-ml_algorithm* ml_neural_network::read(const wstring& path, b8 text_type) {
+ml_neural_network* ml_neural_network::read(const wstring& path, b8 text_type) {
 	if (text_type) {
 		sys_string_file_buffer_reader reader(path);
 		return read(&reader);
@@ -50,7 +50,7 @@ void ml_neural_network::write(sys_buffer_writer* buffer_writer, b8 write_learned
 	write(json_writer, write_learned_param);
 }
 
-ml_algorithm* ml_neural_network::read(sys_buffer_reader* buffer_reader) {
+ml_neural_network* ml_neural_network::read(sys_buffer_reader* buffer_reader) {
 	sys_json_reader json_reader(buffer_reader);
 
 	if (!json_reader.has_key(L"ml_neural_network")) {
@@ -83,7 +83,7 @@ void ml_neural_network::write(sys_json_writer& writer, b8 write_learned_param) c
 	writer<<L"}";
 }
 
-ml_algorithm* ml_neural_network::read(sys_json_reader& reader) {
+ml_neural_network* ml_neural_network::read(sys_json_reader& reader) {
 	ml_neural_network* nn = new ml_neural_network();
 
 	nn->m_statistic_on_train.read(reader[L"statistic_on_train"]);
@@ -99,6 +99,22 @@ ml_algorithm* ml_neural_network::read(sys_json_reader& reader) {
 	ml_helper::read(nn->m_input_layers, nn->m_hidden_layers, nn->m_output_layers, nn->m_linked_layers, reader[L"layers"]);
 
 	return nn;
+}
+
+void ml_neural_network::add_layer(ml_nn_layer* layer) {
+	
+	
+	if (layer->to_input_data_layer() != NULL) {
+		m_input_layers.push_back(layer);
+	} else if (layer->to_output_data_layer() != NULL) {
+		m_output_layers.push_back(layer);
+	} else if (layer->to_data_layer() != NULL) {
+		m_hidden_layers.push_back(layer);
+	} else if (layer->to_linked_layer() != NULL) {
+		m_linked_layers.push_back(layer);
+	} else {
+		basiclog_unsupport2();
+	}
 }
 
 void ml_neural_network::setup() {
@@ -146,7 +162,7 @@ void ml_neural_network::train(const ml_data& training_data, const ml_data& valid
 			map<wstring, mt_mat> labels;
 
 			params.m_sequence_length = batcher.feature(features, i);
-			batcher.label(labels, m_label_for_categories, name(), i);
+			batcher.label(labels, m_label_for_categories, class_name(), i);
 
 			for (int iter_input = 0; iter_input < (int)m_input_layers.size(); ++iter_input) {
 				const wstring& input_layer_name = m_input_layers[iter_input]->name();
@@ -191,7 +207,7 @@ void ml_neural_network::train(const ml_data& training_data, const ml_data& valid
 }
 
 void ml_neural_network::predict(ml_predict_result& res, const ml_data& features) const {
-	res.set_model_name(name());
+	res.set_model_name(class_name());
 	res.set_label_for_category(m_label_for_categories);
 	ml_batcher batcher(features, m_testing_batch_size, sys_true, sys_false);
 

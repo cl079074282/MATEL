@@ -26,6 +26,7 @@ namespace basicml {
 		void on_copy_from_other();
 
 		virtual void write(sys_json_writer& writer, b8 write_learned_param) const;
+		static ml_bsgd_learning_param_updater* read(const sys_json_reader& reader);
 
 		vector<mt_mat> m_learning_params;
 		vector<mt_mat> m_v_gradients;

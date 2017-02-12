@@ -41,8 +41,6 @@ public:
 
 	virtual void update_learning_param(const vector<mt_mat>& losses, const ml_nn_layer_learning_params& pars) {};
 
-	virtual void backprapogation_singal(const vector<mt_mat>& bp_singals, const ml_nn_layer_learning_params& pars);
-
 	const vector<ml_nn_linked_layer*>& get_prev_linked_layers() const {
 		return m_prev_linked_layers;
 	}
@@ -123,6 +121,9 @@ public:
 	ml_nn_layer* clone() const;
 	virtual ml_nn_data_layer* to_data_layer() {return this;}
 	virtual const ml_nn_data_layer* to_data_layer() const {return this;}
+
+	virtual void write(sys_json_writer& writer, b8 write_learned_param = sys_true) const;
+	static ml_nn_data_layer* read(const sys_json_reader& reader);
 
 protected:
 

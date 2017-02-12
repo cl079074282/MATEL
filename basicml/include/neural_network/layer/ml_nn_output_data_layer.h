@@ -57,6 +57,9 @@ namespace basicml {
 
 		ml_nn_layer* clone() const;
 
+		virtual void write(sys_json_writer& writer, b8 write_learned_param = sys_true) const;
+		static ml_nn_output_data_layer* read(const sys_json_reader& reader);
+
 	protected:
 
 		mt_Loss_Type m_loss_func_type;

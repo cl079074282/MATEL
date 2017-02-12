@@ -11,6 +11,8 @@ namespace basicml {
 
 	public:
 
+		basicsys_class_name_method(ml_algorithm);
+
 		ml_algorithm() {
 			m_depth = mt_F64;
 		}
@@ -35,12 +37,6 @@ namespace basicml {
 		virtual i32 depth() const {
 			return m_depth;
 		}
-
-		static const wstring& name() {
-			static wstring sname(L"ml_algorithm");
-			return sname;
-		}
-
 
 		virtual ml_supervised_algorithm* to_supervised_model() {return NULL;}
 		virtual const ml_supervised_algorithm* to_supervised_model() const {return NULL;}

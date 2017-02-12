@@ -6,7 +6,7 @@
 
 ml_predict_result::ml_predict_result(const ml_supervised_algorithm* model) {
 	m_label_for_categories = &model->label_for_category();
-	m_model_name = model->name();
+	m_model_name = model->class_name();
 }
 
 void ml_predict_result::statistic_from_response(ml_statistic_info& info, const map<wstring, mt_mat>& ground_truth_responses) const {

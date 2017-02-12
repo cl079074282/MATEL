@@ -11,6 +11,9 @@
 namespace basicml {
 	class ml_supervised_algorithm : public ml_algorithm {
 	public:
+
+		basicsys_class_name_method(ml_supervised_algorithm);
+
 		virtual ~ml_supervised_algorithm() {
 
 		}
@@ -29,11 +32,6 @@ namespace basicml {
 
 		virtual const map<wstring, mt_mat>& label_for_category() const {
 			return m_label_for_categories;
-		}
-
-		static wstring& name() {
-			static wstring sname(L"ml_supervised_algorithm");
-			return sname;
 		}
 
 		virtual ml_supervised_algorithm* to_supervised_model() {return this;}

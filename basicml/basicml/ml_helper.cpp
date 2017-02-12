@@ -281,7 +281,7 @@ mt_mat ml_helper::group_category(const mt_mat& response) {
 }
 
 mt_mat ml_helper::label_from_response(const mt_mat& response, const mt_mat& label_for_category, const wstring& model_name) {
-	if (model_name == ml_neural_network::name()) {
+	if (model_name == ml_neural_network::class_name()) {
 		if (response.depth() == mt_F32) {
 			return private_ml_helper::vector_label_from_response<f32>(response, label_for_category);
 		} else if (response.depth() == mt_F64) {
@@ -294,7 +294,7 @@ mt_mat ml_helper::label_from_response(const mt_mat& response, const mt_mat& labe
 }
 
 mt_mat ml_helper::response_from_label(const mt_mat& label, const mt_mat& label_for_category, const wstring& model_name) {
-	if (model_name == ml_neural_network::name()) {
+	if (model_name == ml_neural_network::class_name()) {
 		if (label.depth() == mt_F32) {
 			return private_ml_helper::response_from_vector_label<f32>(label, label_for_category);
 		} else if (label.depth() == mt_F64) {

@@ -80,3 +80,11 @@ void ml_nn_batch_norm_linked_layer::update_learning_param(const vector<mt_mat>& 
 	m_weight_updater->update(m_gmmas, losses.front().auto_derivative()->derivate(m_gmmas, losses), pars);
 	m_bias_updater->update(m_betas, losses.front().auto_derivative()->derivate(m_betas, losses), pars);
 }
+
+void ml_nn_batch_norm_linked_layer::write(sys_json_writer& writer, b8 write_learned_param /* = sys_true */) const {
+
+}
+
+ml_nn_batch_norm_linked_layer* ml_nn_batch_norm_linked_layer::read(const sys_json_reader& reader) {
+	return NULL;
+}

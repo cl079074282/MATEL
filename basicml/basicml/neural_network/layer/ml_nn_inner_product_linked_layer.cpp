@@ -115,8 +115,10 @@ void ml_nn_inner_product_linked_layer::write(sys_json_writer& writer, b8 save_le
 	writer<<L"bias_updater";
 	m_bias_updater->write(writer, save_learned_param);
 
-	writer<<L"weight"<<m_weight;
-	writer<<L"bias"<<m_bias;
+	if (save_learned_param) {
+		writer<<L"weight"<<m_weight;
+		writer<<L"bias"<<m_bias;
+	}
 
 	writer<<L"}";
 }

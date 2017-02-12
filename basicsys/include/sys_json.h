@@ -65,6 +65,19 @@ namespace basicsys {
 		}
 
 		template<class T>
+		sys_json_writer& operator<<(const map<wstring, T>& val) {
+			(*this)<<L"{";
+
+			for (map<wstring, T>::const_iterator iter = val.begin(); iter != val.end(); ++iter) {
+				(*this)<<iter->first<<iter->second;
+			}
+
+			(*this)<<L"}";
+
+			return *this;
+		}
+
+		template<class T>
 		sys_json_writer& operator<<(const T& val) {
 			write(*this, val);
 			return *this;
@@ -156,6 +169,8 @@ namespace basicsys {
 			} else if (!is_map()) {
 				val.push_back(T());
 				(*this)>>val.back();
+			} else {
+				basiclog_assert2(sys_false);
 			}
 		}
 

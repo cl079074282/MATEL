@@ -37,6 +37,12 @@ protected:	\
 	mkl_set_dynamic(1);	
 
 
+#define basicsys_class_name_method(class_description)	\
+	static const wstring& class_name() { \
+		static wstring name = L#class_description; \
+		return name; \
+	}
+
 namespace basicsys {
 
 	typedef short              i16;

@@ -47,3 +47,7 @@ void ml_learning_param_updater::add_penalty(mt_mat& gradient, mt_mat& learning_p
 		gradient += learning_param * alpha;
 	}
 }
+
+ml_learning_param_updater* ml_learning_param_updater::read(const sys_json_reader& reader) {
+
+}

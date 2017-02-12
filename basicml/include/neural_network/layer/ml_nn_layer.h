@@ -58,7 +58,7 @@ public:
 	virtual ml_nn_output_data_layer* to_output_data_layer() {return NULL;}
 	virtual const ml_nn_output_data_layer* to_output_data_layer() const {return NULL;}
 
-	virtual void write(sys_json_writer& writer, b8 write_learned_param = sys_true) const;
+	virtual void write(sys_json_writer& writer, b8 write_learned_param = sys_true) const = 0;
 	static ml_nn_layer* read(const sys_json_reader& reader);
 
 	void set_name(const wstring& name) {

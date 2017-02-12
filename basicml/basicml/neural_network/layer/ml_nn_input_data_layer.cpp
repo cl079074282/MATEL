@@ -26,3 +26,11 @@ void ml_nn_input_data_layer::feedforward_by_input(const mt_mat& input, const ml_
 ml_nn_layer* ml_nn_input_data_layer::clone() const {
 	return new ml_nn_input_data_layer();
 }
+
+void ml_nn_input_data_layer::write(sys_json_writer& writer, b8 write_learned_param /* = sys_true */) const {
+
+}
+
+ml_nn_input_data_layer* ml_nn_input_data_layer::read(const sys_json_reader& reader) {
+	return NULL;
+}

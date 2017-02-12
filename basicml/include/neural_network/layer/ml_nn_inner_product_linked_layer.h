@@ -47,8 +47,6 @@ namespace basicml {
 		void update_learning_param(const vector<mt_mat>& losses, const ml_nn_layer_learning_params& pars);
 		ml_nn_layer* clone() const;
 
-		virtual bool has_learned_param() const {return true;}
-
 		virtual void write(sys_json_writer& writer, b8 save_learned_param = sys_true) const;
 		static ml_nn_inner_product_linked_layer* read(const sys_json_reader& reader);
 

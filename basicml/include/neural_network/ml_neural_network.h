@@ -11,6 +11,8 @@ namespace basicml {
 	class ml_neural_network : public ml_supervised_algorithm {
 	public:
 
+		basicsys_class_name_method(ml_neural_network)
+
 		ml_neural_network() {
 			m_iteration_number = 2000;
 			m_statistic_iteration_number = 100;
@@ -56,17 +58,12 @@ namespace basicml {
 
 		virtual void write(const wstring& path, b8 text_type = sys_true, b8 write_learned_param = sys_true) const;
 		virtual void write(sys_json_writer& writer, b8 write_learned_param = sys_true) const;
-		static ml_algorithm* read(const wstring& path, b8 text_type = sys_true);
-		static ml_algorithm* read(sys_json_reader& reader);
+		static ml_neural_network* read(const wstring& path, b8 text_type = sys_true);
+		static ml_neural_network* read(sys_json_reader& reader);
 
 		virtual b8 empty() {return sys_true;}
 
 		ml_algorithm* clone() const;
-
-		static const wstring& name() {
-			static wstring sname(L"ml_neural_network");
-			return sname;
-		}
 
 	protected:
 
@@ -85,7 +82,7 @@ namespace basicml {
 		void remove_all_zero_out_degree_nonoutput_layer(vector<ml_nn_layer*>& data_layers);
 
 		void write(sys_buffer_writer* buffer_writer, b8 write_learned_params) const;
-		static ml_algorithm* read(sys_buffer_reader* buffer_reader);
+		static ml_neural_network* read(sys_buffer_reader* buffer_reader);
 
 		ml_statistic_info m_statistic_on_train;
 		ml_statistic_info m_statistic_on_validation;

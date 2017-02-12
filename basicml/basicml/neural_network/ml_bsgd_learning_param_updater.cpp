@@ -41,6 +41,7 @@ void ml_bsgd_learning_param_updater::on_copy_from_other() {
 
 void ml_bsgd_learning_param_updater::write(sys_json_writer& writer, b8 write_learned_param) const {
 	writer<<L"{";
+	writer<<L"updater_type"<<class_name();
 
 	writer<<L"auto_scaled_iteration_number"<<m_auto_scaled_iteration_number;
 	writer<<L"learning_ratio"<<m_learning_ratio;
@@ -50,5 +51,33 @@ void ml_bsgd_learning_param_updater::write(sys_json_writer& writer, b8 write_lea
 	
 	writer<<L"penalty_alpha"<<m_penalty_alpha;
 
+	if (write_learned_param) {
+		writer<<L"v_gradients"<<m_v_gradients;
+	}
+
 	writer<<L"}";
+}
+
+ml_bsgd_learning_param_updater* ml_bsgd_learning_param_updater::read(const sys_json_reader& reader) {
+	if ((wstring)reader[L"updater_type"] != class_name()) {
+		return NULL;
+	}
+
+	ml_bsgd_learning_param_updater* updater = new ml_bsgd_learning_param_updater();
+	reader[L"auto_scaled_iteration_number"]>>updater->m_auto_scaled_iteration_number;
+	reader[L"learning_ratio"]>>updater->m_learning_ratio;
+	reader[L"learning_ratio_scaled_ratio"]>>updater->m_learning_ratio_scaled_ratio;
+	reader[L"momentum"]>>updater->m_momentum;
+
+	if (reader.has_key(L"penalty_type")) {
+		wstring penalty_type_description;
+		reader[L"penalty_type"]>>penalty_type_description;
+
+		updater->m_penalty_type = (ml_Penalty_Type)ml_helper::find_in_text(ml_Penalty_Type_Descriptions, penalty_type_description, sys_true);
+		reader[L"penalty_alpha"]>>updater->m_penalty_alpha;
+	} 
+
+	reader[L"v_gradients"]>>updater->m_v_gradients;
+
+	return updater;
 }

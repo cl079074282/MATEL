@@ -57,13 +57,11 @@ namespace basicml {
 			return m_output;
 		}
 
-		virtual void copy_learned_param(const ml_nn_linked_layer* other);
+		virtual void copy_learned_param(const ml_nn_linked_layer* other) {};
 
 		virtual void feedforward(const ml_nn_layer_learning_params& pars) {};
 		
 		virtual void update_learning_param(const vector<mt_mat>& losses, const ml_nn_layer_learning_params& pars) {};
-
-		virtual bool has_learned_param() const {return false;}
 
 		void set_weight_updater(ml_learning_param_updater* updater) {
 			m_weight_updater = updater;
@@ -80,6 +78,9 @@ namespace basicml {
 		ml_learning_param_updater* bias_updater() const {
 			return m_bias_updater;
 		}
+
+		virtual void write(sys_json_writer& writer, b8 write_learned_param = sys_true) const;
+		static ml_nn_linked_layer* read(const sys_json_reader& reader);
 
 	protected:
 

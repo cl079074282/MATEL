@@ -2,7 +2,6 @@
 
 #include "ml_nn_data_layer.h"
 #include "ml_nn_linked_layer.h"
-#include "ml_nn_data_layer_config.h"
 
 void ml_nn_data_layer::feedforward_drop_drawn_singal(const vector<mt_mat>& drawn_singals, const ml_nn_layer_learning_params& pars) {
 	basiclog_assert2(pars.m_inference_stage);
@@ -108,6 +107,14 @@ void ml_nn_data_layer::compute_default_setting() {
 	for (int i = 0; i < (int)m_next_linked_layers.size(); ++i) {
 		m_next_linked_layers[i]->compute_default_setting();
 	}
+}
+
+void ml_nn_data_layer::write(sys_json_writer& writer, b8 write_learned_param /* = sys_true */) const {
+
+}
+
+ml_nn_data_layer* ml_nn_data_layer::read(const sys_json_reader& reader) {
+	return NULL;
 }
 
 ml_nn_layer* ml_nn_data_layer::clone() const {
