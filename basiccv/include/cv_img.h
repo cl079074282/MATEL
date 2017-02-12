@@ -22,8 +22,7 @@ namespace basiccv {
 			Inter_Type_Cubic = 2,
 		};
 
-		static basicmath::mt_mat resize(const basicmath::mt_mat& src, Inter_Type type = Inter_Type_Cubic);
-		static void resize(basicmath::mt_mat& dst, const basicmath::mt_mat& src, const basicmath::mt_size& dst_size, Inter_Type type = Inter_Type_Cubic);
+		static basicmath::mt_mat resize(const basicmath::mt_mat& src, const mt_size& dst_size, Inter_Type type = Inter_Type_Cubic);
 
 		static basicmath::mt_mat from_opencv(const cv::Mat& mat);
 
