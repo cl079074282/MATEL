@@ -51,12 +51,20 @@ intermediate/
 /web-app/WEB-INF/classes
 
 # "temporary" build files
+basic_thrid_libs/
+doxygen/
 target/
 out/
-build/
+#build/
 
 # other
 *.iws
+*.pdb
+*.exe
+*.tlog
+*.idb
+*.user
+*.lib
 
 #.gitignore for java
 *.class
