@@ -45,7 +45,7 @@ static void test_mat_add() {
 	mt_mat negative_a = -a;
 
 	basiclog_info2(negative_a);
-	sys_test_equal(negative_a, mt_mat_t<f32>(3, 3, 1).read(0, 1, 2, 3, 4, 5, 6, 7, 8) * -1);
+	sys_test_equal(negative_a, mt_mat_t<f32>(3, 3, 1).read(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0) * -1);
 }
 
 static void test_mat_sub() {
@@ -187,9 +187,9 @@ static void test_get_index() {
 	index.push_back(3);
 	index.push_back(3);
 
-	basiclog_info2(a.get_index(a.ptr<u8>(index)));
+	basiclog_info2(a.get_index(a.ptr<u8>(index, 0)));
 
-	sys_test_equal(index, a.get_index(a.ptr<u8>(index)));
+	sys_test_equal(index, a.get_index(a.ptr<u8>(index, 0)));
 
 	//a = a.flip(0);
 	a = a.sub(mt_range(1, 3), 0).sub(mt_range(1, 3), 1);
@@ -201,10 +201,9 @@ static void test_get_index() {
 
 	a = a.flip(0);
 
-	basiclog_info2(a.get_index(a.ptr<u8>(index)));
+	basiclog_info2(a.get_index(a.ptr<u8>(index, 0)));
 
-	sys_test_equal(index, a.get_index(a.ptr<u8>(index)));
-	
+	sys_test_equal(index, a.get_index(a.ptr<u8>(index, 0)));
 }
 
 static void test_auto_derivative() {
@@ -414,6 +413,20 @@ static void test_sub_stride() {
 	//basiclog_info2(a.sub(1, 7, 0).sub(1, 7, 1).t().flip_all_dim().sub_stride(2, strides));
 }
 
+static void test_at_ptr() {
+	mt_mat a = mt_mat(8, 8, mt_S32).set_incremental(0, sys_false);
+	basiclog_info2(a);
+
+	i32 value = a.at<i32>(1, 0);
+	
+	
+	sys_test_equal(a.at<i32>(1, 0), 8);
+	sys_test_equal(a.at<i32>(1, 0, 0), 8);
+
+	sys_test_equal(*a.ptr<i32>(1, 0), 8);
+	sys_test_equal(*a.ptr<i32>(1, 0, 0), 8);
+}
+
 void mt_mat_test::run(vector<wstring>& argvs) {
 	test_mat_create();
 	test_mat_sub();
@@ -432,4 +445,5 @@ void mt_mat_test::run(vector<wstring>& argvs) {
 	test_save_mat();
 	test_pooling();
 	test_sub_stride();
+	test_at_ptr();
 }

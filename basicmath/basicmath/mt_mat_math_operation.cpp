@@ -44,7 +44,7 @@ namespace basicmath {
 				}
 
 				if (pooling_type == mt_Pooling_Type_First_Value) {
-					const T* ptr_src_data = src.ptr<T>(src.dim(), src_start_indexs);
+					const T* ptr_src_data = src.ptr<T>(src.dim(), src_start_indexs, 0);
 
 					for (i32 c = 0; c < src.channel(); ++c) {
 						ptr_data[c] = ptr_src_data[c];
@@ -61,7 +61,7 @@ namespace basicmath {
 
 						
 						if (src.valid_index(src_iter_indexs)) {
-							const T* ptr_src_data = src.ptr<T>(src_iter_indexs);
+							const T* ptr_src_data = src.ptr<T>(src_iter_indexs, 0);
 							++in_src_number;
 
 							for (i32 c = 0; c < src.channel(); ++c) {
@@ -81,7 +81,7 @@ namespace basicmath {
 					}
 
 				} else if (pooling_type == mt_Pooling_Type_Max || pooling_type == mt_Pooling_Type_Min) {
-					i32* ptr_mask_data = mask_mat.ptr<i32>(cur_indexs);
+					i32* ptr_mask_data = mask_mat.ptr<i32>(cur_indexs, 0);
 
 					kernel_iter.init(src.dim(), kernel_sizes);
 					int in_src_number = 0;
@@ -92,7 +92,7 @@ namespace basicmath {
 						}
 
 						if (src.valid_index(src_iter_indexs)) {
-							const T* ptr_src_data = src.ptr<T>(src_iter_indexs);
+							const T* ptr_src_data = src.ptr<T>(src_iter_indexs, 0);
 							++in_src_number;
 							i32 mask_index = mt_helper::index_from_multi_index(src_iter_indexs, src.dim(), src.size());
 
@@ -156,7 +156,7 @@ namespace basicmath {
 				}
 
 				if (pooling_type == mt_Pooling_Type_First_Value) {
-					T* ptr_src_data = src.ptr<T>(src.dim(), src_start_indexs);
+					T* ptr_src_data = src.ptr<T>(src.dim(), src_start_indexs, 0);
 
 					for (i32 c = 0; c < src.channel(); ++c) {
 						ptr_src_data[c] += ptr_data[c];
@@ -170,7 +170,7 @@ namespace basicmath {
 						}
 
 						if (src.valid_index(src_iter_indexs)) {
-							T* ptr_src_data = src.ptr<T>(src_iter_indexs);
+							T* ptr_src_data = src.ptr<T>(src_iter_indexs, 0);
 
 							for (i32 c = 0; c < src.channel(); ++c) {
 								ptr_src_data[c] += ptr_data[c];
@@ -199,7 +199,7 @@ namespace basicmath {
 						}
 
 						if (src.valid_index(src_iter_indexs)) {
-							T* ptr_src_data = src.ptr<T>(src_iter_indexs);
+							T* ptr_src_data = src.ptr<T>(src_iter_indexs, 0);
 
 							for (i32 c = 0; c < src.channel(); ++c) {
 								ptr_src_data[c] += T(ptr_data[c] / (f64)in_src_number);
@@ -208,10 +208,10 @@ namespace basicmath {
 					}
 
 				} else if (pooling_type == mt_Pooling_Type_Max || pooling_type == mt_Pooling_Type_Min) {
-					const i32* ptr_mask_data = mask_mat.ptr<i32>(cur_indexs);
+					const i32* ptr_mask_data = mask_mat.ptr<i32>(cur_indexs, 0);
 
 					mt_helper::multi_index_from_index(src_iter_indexs, *ptr_mask_data, src.dim(), src.size());
-					T* ptr_src_data = src.ptr<T>(src_iter_indexs);
+					T* ptr_src_data = src.ptr<T>(src_iter_indexs, 0);
 
 					for (i32 c = 0; c < src.channel(); ++c) {
 						ptr_src_data[c] += ptr_data[c];
@@ -387,6 +387,10 @@ namespace basicmath {
 				const T* ptr_matching = (const T*)matching_mat.data();
 
 				for (i32 c = 0; c < src.dim(); ++c) {
+					if (mt_helper::is_nan(ptr_matching[c])) {
+						continue;
+					}
+
 					ptr_dst[c] += (ptr_src[c] - ptr_matching[c]) * (ptr_src[c] - ptr_matching[c]) / 2;
 				}
 			}
@@ -410,12 +414,14 @@ namespace basicmath {
 					const T* ptr_src_dim1 = (const T*)ptr_src_dim0;
 					const T* ptr_matching_dim1 = (const T*)ptr_matching_dim0;
 
-					if (1 == (i32)*ptr_matching_dim1) {
-						*ptr_dst -= (T)log(*ptr_src_dim1 + DBL_EPSILON);
-					} else if (0 == (i32)*ptr_matching_dim1){
-						*ptr_dst -= (T)log(1 - *ptr_src_dim1 + DBL_EPSILON);
-					} else {
-						basiclog_assert2(false);
+					if (!mt_helper::is_nan(ptr_matching_dim1[0])) {
+						if (1 == (i32)*ptr_matching_dim1) {
+							*ptr_dst -= (T)log(*ptr_src_dim1 + DBL_EPSILON);
+						} else if (0 == (i32)*ptr_matching_dim1){
+							*ptr_dst -= (T)log(1 - *ptr_src_dim1 + DBL_EPSILON);
+						} else {
+							basiclog_assert2(false);
+						}
 					}
 
 					ptr_src_dim0 += src.step()[0];
@@ -426,13 +432,15 @@ namespace basicmath {
 					const T* ptr_src_dim1 = (const T*)ptr_src_dim0;
 					const T* ptr_matching_dim1 = (const T*)ptr_matching_dim0;
 
-					for (i32 col = 0; col < src.size()[1]; ++col) {
-						if (1 == (i32)*ptr_matching_dim1) {
-							*ptr_dst -= (T)log(*ptr_src_dim1 + DBL_EPSILON);
-							break;
-						} else {
-							++ptr_matching_dim1;
-							++ptr_src_dim1;
+					if (!mt_helper::is_nan(ptr_matching_dim1[0])) {
+						for (i32 col = 0; col < src.size()[1]; ++col) {
+							if (1 == (i32)*ptr_matching_dim1) {
+								*ptr_dst -= (T)log(*ptr_src_dim1 + DBL_EPSILON);
+								break;
+							} else {
+								++ptr_matching_dim1;
+								++ptr_src_dim1;
+							}
 						}
 					}
 
@@ -447,7 +455,7 @@ namespace basicmath {
 		template<class T>
 		static mt_mat loss(const mt_mat& src, const mt_mat& matching_mat, mt_Loss_Type type) {
 			switch (type) {
-			case mt_Loss_Type_Quardratic:
+			case mt_Loss_Type_Quadratic:
 				return quardratic_loss<T>(src, matching_mat);
 			case mt_Loss_Type_Logarithmic:
 				return logarithmic_loss<T>(src, matching_mat);
@@ -502,11 +510,11 @@ namespace basicmath {
 
 				dst_sizes[reduce_dim] = 0;
 
-				T* ptr_res = dst.ptr<T>(dst.dim(), dst_sizes);
+				T* ptr_res = dst.ptr<T>(dst.dim(), dst_sizes, 0);
 				T* ptr_mean = NULL;
 
 				if (!mean.empty()) {
-					ptr_mean = mean.ptr<T>(mean.dim(), dst_sizes);
+					ptr_mean = mean.ptr<T>(mean.dim(), dst_sizes, 0);
 				}
 
 				for (i32 c = 0; c < src.channel(); ++c) {
@@ -567,7 +575,7 @@ namespace basicmath {
 
 		mt_mat_helper::mat_operation(res, vec_other, mat, mt_mat_helper::Math_Op_Code_Subtract);
 
-		if (mat.auto_derivative() != NULL && mat.auto_derivative()->is_math_operation_recorded()) {
+		if (mat.auto_derivative() != NULL && mat.auto_derivative()->math_operation_recorded()) {
 			res.attach(mat.auto_derivative());
 
 			mat.auto_derivative()->add(res, mat, vec_other);
@@ -587,7 +595,7 @@ namespace basicmath {
 
 		mt_mat_helper::mat_operation(res, vec_other, mat, mt_mat_helper::Math_Op_Code_Dot_Div);
 
-		if (mat.auto_derivative() != NULL && mat.auto_derivative()->is_math_operation_recorded()) {
+		if (mat.auto_derivative() != NULL && mat.auto_derivative()->math_operation_recorded()) {
 			res.attach(mat.auto_derivative());
 
 			mat.auto_derivative()->add(res, mat, vec_other);
@@ -602,7 +610,7 @@ namespace basicmath {
 }
 
 mt_mat& mt_mat::operator+=(double other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	vector<double> vec_other;
 	vec_other.resize(channel(), other);
@@ -611,7 +619,7 @@ mt_mat& mt_mat::operator+=(double other) {
 }
 
 mt_mat& mt_mat::operator+=(const mt_scalar& other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	vector<double> vec_other;
 	mt_helper::vec_from_scalar(vec_other, other);
@@ -620,7 +628,7 @@ mt_mat& mt_mat::operator+=(const mt_scalar& other) {
 }
 
 mt_mat& mt_mat::operator+=(const vector<double>& other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	mt_mat_helper::mat_operation(*this, other, *this, mt_mat_helper::Math_Op_Code_Add);
 
@@ -628,7 +636,7 @@ mt_mat& mt_mat::operator+=(const vector<double>& other) {
 }
 
 mt_mat& mt_mat::operator+=(const mt_mat& other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	mt_mat_helper::mat_operation(*this, *this, other, mt_mat_helper::Math_Op_Code_Add);
 
@@ -636,7 +644,7 @@ mt_mat& mt_mat::operator+=(const mt_mat& other) {
 }
 
 mt_mat& mt_mat::operator-=(double other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	vector<double> vec_other;
 	vec_other.resize(channel(), other);
@@ -645,7 +653,7 @@ mt_mat& mt_mat::operator-=(double other) {
 }
 
 mt_mat& mt_mat::operator-=(const mt_scalar& other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	vector<double> vec_other;
 	mt_helper::vec_from_scalar(vec_other, other);
@@ -654,7 +662,7 @@ mt_mat& mt_mat::operator-=(const mt_scalar& other) {
 }
 
 mt_mat& mt_mat::operator-=(const vector<double>& other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	mt_mat_helper::mat_operation(*this, other, *this, mt_mat_helper::Math_Op_Code_Subtract);
 
@@ -662,7 +670,7 @@ mt_mat& mt_mat::operator-=(const vector<double>& other) {
 }
 
 mt_mat& mt_mat::operator-=(const mt_mat& other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	mt_mat_helper::mat_operation(*this, *this, other, mt_mat_helper::Math_Op_Code_Subtract);
 
@@ -670,7 +678,7 @@ mt_mat& mt_mat::operator-=(const mt_mat& other) {
 }
 
 mt_mat& mt_mat::operator*=(double other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	vector<double> vec_other;
 	vec_other.resize(channel(), other);
@@ -679,7 +687,7 @@ mt_mat& mt_mat::operator*=(double other) {
 }
 
 mt_mat& mt_mat::operator*=(const mt_scalar& other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	vector<double> vec_other;
 	mt_helper::vec_from_scalar(vec_other, other);
@@ -688,7 +696,7 @@ mt_mat& mt_mat::operator*=(const mt_scalar& other) {
 }
 
 mt_mat& mt_mat::operator*=(const vector<double>& value) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	mt_mat_helper::mat_operation(*this, value, *this, mt_mat_helper::Math_Op_Code_Dot_Mul);
 
@@ -696,7 +704,7 @@ mt_mat& mt_mat::operator*=(const vector<double>& value) {
 }
 
 mt_mat& mt_mat::operator*=(const mt_mat& value) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	mt_mat_helper::mat_operation(*this, *this, value, mt_mat_helper::Math_Op_Code_Dot_Mul);
 
@@ -704,7 +712,7 @@ mt_mat& mt_mat::operator*=(const mt_mat& value) {
 }
 
 mt_mat& mt_mat::operator/=(double other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	vector<double> vec_other;
 	vec_other.resize(channel(), other);
@@ -713,7 +721,7 @@ mt_mat& mt_mat::operator/=(double other) {
 }
 
 mt_mat& mt_mat::operator/=(const mt_scalar& other) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	vector<double> vec_other;
 	mt_helper::vec_from_scalar(vec_other, other);
@@ -722,7 +730,7 @@ mt_mat& mt_mat::operator/=(const mt_scalar& other) {
 }
 
 mt_mat& mt_mat::operator/=(const vector<double>& value) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	mt_mat_helper::mat_operation(*this, value, *this, mt_mat_helper::Math_Op_Code_Dot_Div);
 
@@ -730,7 +738,7 @@ mt_mat& mt_mat::operator/=(const vector<double>& value) {
 }
 
 mt_mat& mt_mat::operator/=(const mt_mat& value) {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 
 	mt_mat_helper::mat_operation(*this, *this, value, mt_mat_helper::Math_Op_Code_Dot_Div);
 
@@ -758,7 +766,7 @@ mt_mat mt_mat::operator+(const vector<double>& value) const {
 
 	mt_mat_helper::mat_operation(res, value, *this, mt_mat_helper::Math_Op_Code_Add);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.m_auto_derivative = m_auto_derivative;
 
 		m_auto_derivative->add(res, *this, value);
@@ -774,7 +782,7 @@ mt_mat mt_mat::operator+(const mt_mat& value) const {
 
 	mt_mat_helper::mat_operation(res, *this, value, mt_mat_helper::Math_Op_Code_Add);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.m_auto_derivative = m_auto_derivative;
 		value.m_auto_derivative = m_auto_derivative;
 
@@ -805,7 +813,7 @@ mt_mat mt_mat::operator-(const vector<double>& value) const {
 
 	mt_mat_helper::mat_operation(res, value, *this, mt_mat_helper::Math_Op_Code_Subtract);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.m_auto_derivative = m_auto_derivative;
 
 		m_auto_derivative->add(res, *this, value);
@@ -823,7 +831,7 @@ mt_mat mt_mat::operator-(const mt_mat& value) const {
 	
 	mt_mat_helper::mat_operation(res, *this, value, mt_mat_helper::Math_Op_Code_Subtract);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.m_auto_derivative = m_auto_derivative;
 		value.m_auto_derivative = m_auto_derivative;
 
@@ -852,7 +860,7 @@ mt_mat mt_mat::operator*(const vector<double>& value) const {
 
 	mt_mat_helper::mat_operation(res, value, *this, mt_mat_helper::Math_Op_Code_Dot_Mul);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.m_auto_derivative = m_auto_derivative;
 
 		m_auto_derivative->add(res, *this, value);
@@ -866,7 +874,7 @@ mt_mat mt_mat::operator*(const mt_mat& value) const {
 
 	mt_mat_helper::mat_operation(res, *this, value, mt_mat_helper::Math_Op_Code_Dot_Mul);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.m_auto_derivative = m_auto_derivative;
 		value.m_auto_derivative = m_auto_derivative;
 
@@ -897,7 +905,7 @@ mt_mat mt_mat::operator/(const vector<double>& value) const {
 
 	mt_mat_helper::mat_operation(res, value, *this, mt_mat_helper::Math_Op_Code_Dot_Div);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.m_auto_derivative = m_auto_derivative;
 
 		m_auto_derivative->add(res, *this, value);
@@ -911,7 +919,7 @@ mt_mat mt_mat::operator/(const mt_mat& value) const {
 
 	mt_mat_helper::mat_operation(res, *this, value, mt_mat_helper::Math_Op_Code_Dot_Div);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.m_auto_derivative = m_auto_derivative;
 		value.m_auto_derivative = m_auto_derivative;
 
@@ -926,10 +934,10 @@ mt_mat mt_mat::mul(const mt_mat& value) const {
 
 #if defined BASICMATH_MKL
 
-	if (is_step_positive() 
-		&& value.is_step_positive()
-		&& is_min_abs_step_equal_element_size()
-		&& value.is_min_abs_step_equal_element_size()) {
+	if (step_positive() 
+		&& value.step_positive()
+		&& min_abs_step_equal_element_size()
+		&& value.min_abs_step_equal_element_size()) {
 			i32 row_a = size()[0];
 			i32 col_a = size()[1];
 
@@ -970,19 +978,19 @@ mt_mat mt_mat::mul(const mt_mat& value) const {
 			return res;
 	} else {
 		mt_mat temp_cur = *this;
-		if (is_step_negative()) {
+		if (step_negative()) {
 			basiclog_warning(basiclog_performance_warning, L"the step of current mat has negative values, this will reduce the performance, you should better input a mat with all positive steps!");
 			temp_cur = clone();
-		} else if (!is_min_abs_step_equal_element_size()) {
+		} else if (!min_abs_step_equal_element_size()) {
 			basiclog_warning(basiclog_performance_warning, L"this mat is result of the channel_at() on a mat with more than 1 channel, this will reduce the performance!");
 			temp_cur = clone();
 		}
 
 		mt_mat temp_value = value;
-		if (value.is_step_negative()) {
+		if (value.step_negative()) {
 			basiclog_warning(basiclog_performance_warning, L"the step of other mat has negative values, this will reduce the performance, you should better input a mat with all positive steps!");
 			temp_value = value.clone();
-		} else if (!value.is_min_abs_step_equal_element_size()) {
+		} else if (!value.min_abs_step_equal_element_size()) {
 			basiclog_warning(basiclog_performance_warning, L"other mat is result of the channel_at() on a mat with more than 1 channel, this will reduce the performance!");
 			temp_value = value.clone();
 		}
@@ -1148,7 +1156,14 @@ mt_mat mt_mat::unpooling(const int* src_size, const mt_mat& mask_mat, mt_Pooling
 	}
 }
 
-mt_mat mt_mat::expand(i32 size, const i32* side_sizes_1, const i32* side_sizes_2) const {
+mt_mat mt_mat::expand(i32 size, const i32* side_sizes_1, const i32* side_sizes_2, const mt_scalar& filled_channel_value) const {
+	vector<f64> vec_filled_channel_values;
+	mt_helper::vec_from_scalar(vec_filled_channel_values, filled_channel_value);
+
+	return expand(size, side_sizes_1, side_sizes_2, vec_filled_channel_values);
+}
+
+mt_mat mt_mat::expand(i32 size, const i32* side_sizes_1, const i32* side_sizes_2, const vector<f64>& filled_channel_value) const {
 	basiclog_assert2(size == dim());
 
 	basicmath_mat_request_memory(i32, new_sizes, dim());
@@ -1158,7 +1173,7 @@ mt_mat mt_mat::expand(i32 size, const i32* side_sizes_1, const i32* side_sizes_2
 		new_sizes[i] = this->size()[i];
 
 		ranges[i].m_start = 0;
-		
+
 		if (NULL != side_sizes_1) {
 			new_sizes[i] += side_sizes_1[i];
 			ranges[i].m_start += side_sizes_1[i];
@@ -1171,12 +1186,13 @@ mt_mat mt_mat::expand(i32 size, const i32* side_sizes_1, const i32* side_sizes_2
 		ranges[i].m_end = ranges[i].m_start + this->size()[i];
 	}
 
-	mt_mat res(dim(), new_sizes, depth_channel(), 0);
+	mt_mat res(dim(), new_sizes, depth_channel());
+	res.set(filled_channel_value);
 	res.sub(dim(), ranges).set(*this);
 
 	basicmath_mat_release(new_sizes);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.attach(m_auto_derivative);
 
 		vector<mt_range> vec_ranges;
@@ -1201,7 +1217,7 @@ mt_mat mt_mat::sub_stride(i32 size, const i32* strides) const {
 
 	basicmath_mat_release(res_sizes);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		vector<i32> vec_strides;
 		mt_helper::vec_from_array(vec_strides, size, strides);
 		res.attach(m_auto_derivative);
@@ -1223,7 +1239,7 @@ mt_mat mt_mat::activate(mt_Activate_Type type, i32 activate_param_size, const f6
 		private_math_operation::activate<f64>(res, *this, type, activate_param_size, activate_params);
 	}
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		vector<f64> vec_activate_params;
 		mt_helper::vec_from_array(vec_activate_params, activate_param_size, activate_params);
 
@@ -1247,7 +1263,7 @@ mt_mat& mt_mat::self_activate(mt_Activate_Type type, i32 activate_param_size, co
 mt_mat mt_mat::loss(const mt_mat& matching_mat, mt_Loss_Type type) const {
 	basiclog_assert2(depth() == mt_F32 || depth() == mt_F64);
 	basiclog_assert2(dim() == matching_mat.dim());
-	basiclog_assert2(is_same_size(matching_mat));
+	basiclog_assert2(same_size(matching_mat));
 
 	if (depth() == mt_F32) {
 		return private_math_operation::loss<f32>(*this, matching_mat, type);
@@ -1280,7 +1296,7 @@ mt_mat mt_mat::pow(f64 number) const {
 
 	mt_mat_helper::mat_operation(res, params, *this, mt_mat_helper::Math_Op_Code_Pow);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.attach(m_auto_derivative);
 		m_auto_derivative->pow(res, *this, number);
 	}
@@ -1293,7 +1309,7 @@ mt_mat mt_mat::exp() const {
 
 	mt_mat_helper::mat_operation(res, vector<f64>(), *this, mt_mat_helper::Math_Op_Code_Exp);
 
-	if (m_auto_derivative != NULL && m_auto_derivative->is_math_operation_recorded()) {
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.attach(m_auto_derivative);
 		m_auto_derivative->exp(res, *this);
 	}
@@ -1305,7 +1321,7 @@ void mt_mat::eigen(mt_mat& eigen_value, mt_mat& eigen_vector) const {
 	basiclog_assert2(dim() == 2);
 	basiclog_assert2(depth_channel() == mt_F32C1 || depth_channel() == mt_F64C1);
 
-	if (is_min_abs_step_equal_element_size() || is_step_positive() || step()[0] < step()[1]) {
+	if (min_abs_step_equal_element_size() || step_positive() || step()[0] < step()[1]) {
 		clone().eigen(eigen_value, eigen_vector);
 		return;
 	}

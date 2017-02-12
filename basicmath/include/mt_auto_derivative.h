@@ -59,7 +59,7 @@ namespace basicmath {
 		@param enable = sys_true indicates the auto_derivative instance will record the math operation in the derivative tree.
 		*/
 		void record_math_operation(b8 enable);
-		b8 is_math_operation_recorded() const; 
+		b8 math_operation_recorded() const; 
 
 
 		void reset();

@@ -17,7 +17,7 @@ mt_mat::mt_mat()
 
 }
 
-mt_mat::mt_mat(int cols, int depth, const mt_scalar init_value) 
+mt_mat::mt_mat(int cols, int depth, const mt_scalar& init_value) 
 	: m_data(NULL)
 	, m_modified_number(NULL)
 	, m_dynamic_size_steps(NULL)
@@ -33,7 +33,7 @@ mt_mat::mt_mat(int cols, int depth, const mt_scalar init_value)
 		set(init_value);
 }
 
-mt_mat::mt_mat(int row, int col, int depth, const mt_scalar init_value) 
+mt_mat::mt_mat(int row, int col, int depth, const mt_scalar& init_value) 
 	: m_data(NULL)
 	, m_modified_number(NULL)
 	, m_dynamic_size_steps(NULL)
@@ -49,7 +49,7 @@ mt_mat::mt_mat(int row, int col, int depth, const mt_scalar init_value)
 		set(init_value);
 }
 
-mt_mat::mt_mat(int plane, int row, int col, int depth, const mt_scalar init_value) 
+mt_mat::mt_mat(int plane, int row, int col, int depth, const mt_scalar& init_value) 
 	: m_data(NULL)
 	, m_modified_number(NULL)
 	, m_dynamic_size_steps(NULL)
@@ -65,7 +65,7 @@ mt_mat::mt_mat(int plane, int row, int col, int depth, const mt_scalar init_valu
 		set(init_value);
 }
 
-mt_mat::mt_mat(int dims, const int* sizes, int depth, const mt_scalar init_value) 
+mt_mat::mt_mat(int dims, const int* sizes, int depth, const mt_scalar& init_value) 
 	: m_data(NULL)
 	, m_modified_number(NULL)
 	, m_dynamic_size_steps(NULL)
@@ -79,7 +79,7 @@ mt_mat::mt_mat(int dims, const int* sizes, int depth, const mt_scalar init_value
 		set(init_value);
 }
 
-mt_mat::mt_mat(const vector<i32>& sizes, int depth, const mt_scalar init_value) 
+mt_mat::mt_mat(const vector<i32>& sizes, int depth, const mt_scalar& init_value) 
 	: m_data(NULL)
 	, m_modified_number(NULL)
 	, m_dynamic_size_steps(NULL)
@@ -266,6 +266,26 @@ mt_mat mt_mat::derivative(const mt_mat& other) const {
 	return m_auto_derivative->derivate(other, *this);
 }
 
+b8 mt_mat::zero() const {
+	mt_array_element_const_iterator iter(*this);
+
+	for (;;) {
+		const u8* ptr_data = iter.data();
+
+		if (ptr_data == NULL) {
+			break;
+		}
+
+		for (i32 c = 0; c < channel(); ++c) {
+			if (ptr_data[c] != 0) {
+				return sys_false;
+			}
+		}
+	}
+
+	return sys_true;
+}
+
 b8 mt_mat::empty() const {
 	return m_data == NULL;
 }
@@ -330,30 +350,30 @@ bool mt_mat::operator!=(const mt_mat& other) const {
 	return !(*this == other);
 }
 
-bool mt_mat::is_memory_shared(const mt_mat& other) const {
+b8 mt_mat::memory_shared(const mt_mat& other) const {
 	return m_shared_memory == other.m_shared_memory;
 }
 
-bool mt_mat::is_same(const mt_mat& other) const {
+b8 mt_mat::same(const mt_mat& other) const {
 	if (m_shared_memory != other.m_shared_memory) {
-		return false;
+		return sys_false;
 	}
 
 	if (m_data != other.m_data) {
-		return false;
+		return sys_false;
 	}
 
 	if (m_dims != other.m_dims) {
-		return false;
+		return sys_false;
 	}
 
 	for (int i = 0; i < m_dims; ++i) {
 		if (size()[i] != other.size()[i] || step()[i] != other.step()[i]) {
-			return false;
+			return sys_false;
 		}
 	}
 
-	return true;
+	return sys_true;
 }
 
 mt_mat& mt_mat::set_incremental(double value, b8 same_value_for_multi_channel) {
@@ -391,7 +411,7 @@ mt_mat& mt_mat::set_incremental(double value, b8 same_value_for_multi_channel) {
 
 mt_mat& mt_mat::set(const mt_mat& other) {
 	on_vaule_changed();
-	basiclog_assert2(is_same_size(other));
+	basiclog_assert2(same_size(other));
 	
 	if (depth() == other.depth()) {
 		mt_array_iteration::array_copy(data(), other.data(), other.dim(), other.size(), step(), other.step(), other.element_size());
@@ -599,22 +619,22 @@ void mt_mat::operator =(const mt_mat& other) {
 	}
 }
 
-bool mt_mat::is_same_size(const mt_mat& other) const {
+b8 mt_mat::same_size(const mt_mat& other) const {
 	if (m_dims == other.m_dims && channel() == other.channel()) {
-		bool same_size = true;
+		b8 same_flag = true;
 		for (int i = 0; i < m_dims; ++i) {
 			if (size()[i] != other.size()[i]) {
-				same_size = false;
+				same_flag = sys_false;
 				break;
 			}
 		}
 
-		if (same_size) {
-			return true;
+		if (same_flag) {
+			return sys_true;
 		}
 	}
 
-	return false;
+	return sys_false;
 }
 
 mt_mat& mt_mat::create_imp(int dims, const int* sizes, int depth_channel) {
@@ -686,11 +706,11 @@ int mt_mat::element_number() const {
 	return res;
 }
 
-bool mt_mat::is_min_abs_step_equal_element_size() const {
+b8 mt_mat::min_abs_step_equal_element_size() const {
 	return element_size() == mt_helper::compute_abs_min(step(), dim());
 }
 
-bool mt_mat::is_continuous() const {
+b8 mt_mat::continuous() const {
 	return mt_array_iteration::get_continuous_dim(dim(), size(), step(), element_channel_size()) == 0;
 }
 
@@ -747,7 +767,7 @@ mt_mat mt_mat::reshape(const vector<int>& sizes) const {
 }
 
 mt_mat mt_mat::reshape(int dims, const int* sizes) const {
-	if (!is_continuous()) {
+	if (!continuous()) {
 		basiclog_warning(basiclog_performance_warning, L"current mat is not continuous, hence we need to clone one mat to reshape it!");
 		return clone().reshape(dims, sizes);
 	}
@@ -950,7 +970,7 @@ void mt_mat::fill_auto_step() {
 }
 
 void mt_mat::on_vaule_changed() {
-	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->is_math_operation_recorded());
+	basiclog_assert2(m_auto_derivative == NULL || !m_auto_derivative->math_operation_recorded());
 }
 
 mt_mat mt_mat::flip(int dim) const {
@@ -1135,7 +1155,7 @@ mt_mat mt_mat::sub(i32 dims, const mt_range* ranges) const {
 	res.m_data = m_data;
 
 	for (int i = 0; i < res.m_dims; ++i) {
-		basiclog_assert(L"mt_mat", ranges[i].is_valid() && (ranges[i].m_end <= size()[i]));
+		basiclog_assert(L"mt_mat", ranges[i].size() > 0 && (ranges[i].m_end <= size()[i]));
 
 		res.m_data += ranges[i].m_start * step()[i];
 		res.step()[i] = step()[i];
@@ -1306,22 +1326,22 @@ void mt_mat::get_index(vector<int>& index, const u8* ptr_data) const {
 	}
 }
 
-bool mt_mat::is_step_positive() const {
+b8 mt_mat::step_positive() const {
 	for (i32 i = 0; i < m_dims; ++i) {
 		if (step()[i] < 0) {
-			return false;
+			return sys_false;
 		}
 	}
 
-	return true;
+	return sys_true;
 }
 
-bool mt_mat::is_step_negative() const {
+b8 mt_mat::step_negative() const {
 	for (i32 i = 0; i < m_dims; ++i) {
 		if (step()[i] > 0) {
-			return false;
+			return sys_false;
 		}
 	}
 
-	return true;
+	return sys_true;
 }

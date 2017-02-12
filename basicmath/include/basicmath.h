@@ -11,10 +11,12 @@ Other project should include this head file to use the features of BasicMath.
 #include "mt_point_t.h"
 #include "mt_rect_t.h"
 #include "mt_scalar_t.h"
-#include "mt_range.h"
+#include "mt_range_t.h"
 
 #include "mt_mat.h"
 #include "mt_mat_t.h"
 #include "mt_mat_helper.h"
 #include "mt_auto_derivative.h"
 #include "mt_random.h"
+#include "mt_hist.h"
+#include "mt_sort.h"

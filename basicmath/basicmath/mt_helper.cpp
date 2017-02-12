@@ -1,9 +1,35 @@
 #include "stdafx.h"
 
 #include "mt_helper.h"
+#include <limits>
+using namespace std;
 
 static float mt_float_eps = 0.000001f;
 static double mt_double_eps = 0.00000000001;
+
+f64 mt_helper::nan() {
+	return std::numeric_limits<f64>::quiet_NaN();
+}
+
+f64 mt_helper::infinity() {
+	return std::numeric_limits<f64>::infinity();
+}
+
+b8 mt_helper::is_nan(f64 val) {
+	return _isnan(val) != 0;
+}
+
+b8 mt_helper::is_infinity(f64 val) {
+	if (is_nan(val)) {
+		return sys_false;
+	}
+
+	return _finite(val) == 0;
+}
+
+b8 mt_helper::is_number(f64 val) {
+	return !is_nan(val) && !is_infinity(val);
+}
 
 i8 mt_helper::max_i8() {
 	return 127;

@@ -73,11 +73,11 @@ namespace basicmath {
 	public:
 
 		b8 match(const mt_mat& other) const {
-			return m_mat.is_same(other);
+			return m_mat.same(other);
 		}
 
 		b8 related(const mt_mat& other) const {
-			return m_mat.is_memory_shared(other);
+			return m_mat.memory_shared(other);
 		}
 
 		mt_ad_mat_tree_node* to_mat_tree_node() {

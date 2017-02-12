@@ -106,7 +106,7 @@ namespace basicmath {
 
 	enum mt_Loss_Type {
 		mt_Loss_Type_0_1,
-		mt_Loss_Type_Quardratic,
+		mt_Loss_Type_Quadratic,
 		mt_Loss_Type_Logarithmic,
 	};
 }

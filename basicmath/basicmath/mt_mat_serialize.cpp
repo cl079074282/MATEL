@@ -223,7 +223,6 @@ namespace basicmath {
 	void write(basicsys::sys_json_writer& writer, const mt_mat& data) {
 		writer<<L"{";
 
-		writer<<L"depth_channel"<<mt_mat_helper::depth_channel_str(data.depth_channel());
 		writer<<L"sizes";
 
 		writer<<L"[";
@@ -234,6 +233,7 @@ namespace basicmath {
 
 		writer<<L"]";
 
+		writer<<L"depth_channel"<<mt_mat_helper::depth_channel_str(data.depth_channel());
 		writer<<L"data"<<L"[";
 
 		switch (data.depth()) {
@@ -287,46 +287,47 @@ namespace basicmath {
 	}
 
 	void read(mt_mat& data, const basicsys::sys_json_reader& reader) {
-		i32 depth_channel = mt_mat_helper::depth_channel_i32(reader[L"depth_channel"]);
-
 		vector<i32> sizes;
 		reader[L"sizes"]>>sizes;
 
-		data = mt_mat((i32)sizes.size(), &sizes[0], depth_channel);
+		if (sizes.empty()) {
+			data = mt_mat();
+		} else {
+			i32 depth_channel = mt_mat_helper::depth_channel_i32(reader[L"depth_channel"]);
+			data = mt_mat((i32)sizes.size(), &sizes[0], depth_channel);
 
-		switch (data.depth()) {
-		case mt_S8:
-			read_data_impl<i8>(data.data(), reader);
-			break;
-		case mt_U8:
-			read_data_impl<u8>(data.data(), reader);
-			break;
-		case mt_S16:
-			read_data_impl<i16>(data.data(), reader);
-			break;
-		case mt_U16:
-			read_data_impl<u16>(data.data(), reader);
-			break;
-		case mt_S32:
-			read_data_impl<i32>(data.data(), reader);
-			break;
-		case mt_U32:
-			read_data_impl<u32>(data.data(), reader);
-			break;
-		case mt_S64:
-			read_data_impl<i64>(data.data(), reader);
-			break;
-		case mt_U64:
-			read_data_impl<u64>(data.data(), reader);
-			break;
-		case mt_F32:
-			read_data_impl<f32>(data.data(), reader);
-			break;
-		case mt_F64:
-			read_data_impl<f64>(data.data(), reader);
-			break;
+			switch (data.depth()) {
+			case mt_S8:
+				read_data_impl<i8>(data.data(), reader);
+				break;
+			case mt_U8:
+				read_data_impl<u8>(data.data(), reader);
+				break;
+			case mt_S16:
+				read_data_impl<i16>(data.data(), reader);
+				break;
+			case mt_U16:
+				read_data_impl<u16>(data.data(), reader);
+				break;
+			case mt_S32:
+				read_data_impl<i32>(data.data(), reader);
+				break;
+			case mt_U32:
+				read_data_impl<u32>(data.data(), reader);
+				break;
+			case mt_S64:
+				read_data_impl<i64>(data.data(), reader);
+				break;
+			case mt_U64:
+				read_data_impl<u64>(data.data(), reader);
+				break;
+			case mt_F32:
+				read_data_impl<f32>(data.data(), reader);
+				break;
+			case mt_F64:
+				read_data_impl<f64>(data.data(), reader);
+				break;
+			}
 		}
-
-
 	}
 }

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "mt_scalar_t.h"
-#include "mt_range.h"
+#include "mt_range_t.h"
+#include <limits>
 
 namespace basicmath {
 
@@ -19,6 +20,13 @@ namespace basicmath {
 
 			return false;
 		}
+
+		static f64 nan();
+		static f64 infinity();
+		
+		static b8 is_nan(f64 val);
+		static b8 is_infinity(f64 val);
+		static b8 is_number(f64 val);
 
 		static i8 max_i8();
 		static i8 min_i8();
@@ -50,18 +58,26 @@ namespace basicmath {
 		static int compare_double(double a, double b);
 
 		template<class T>
-		static int compare_value(const T& a, const T& b) {
+		static i32 compare_value(const T& a, const T& b) {
 			if (typeid(T) == typeid(float)) {
 				return compare_float((float)a, (float)b);
 			} else if (typeid(T) == typeid(double)) {
 				return compare_double((double)a, (double)b);
 			} else {
-				return a - b;
+				T v = a - b;
+
+				if (v == 0) {
+					return 0;
+				} else if (v > 0) {
+					return 1;
+				} else {
+					return -1;
+				}
 			}
 		}
 
 		template<class T>
-		static T compute_min(const T* values, int size) {
+		static T compute_min(i32 size, const T* values) {
 			T min_value = values[0];
 
 			for (int i = 1; i < size; ++i) {
@@ -71,6 +87,19 @@ namespace basicmath {
 			}
 
 			return min_value;
+		}
+
+		template<class T>
+		static T compute_max(i32 size, const T* values) {
+			T max_value = values[0];
+
+			for (int i = 1; i < size; ++i) {
+				if (values[i] > max_value) {
+					max_value = values[i];
+				}
+			}
+
+			return max_value;
 		}
 
 		template<class T>
@@ -97,6 +126,32 @@ namespace basicmath {
 			}
 
 			return min_value;
+		}
+
+		template<class T>
+		static i32 index_of_max_value(i32 size, const T* data_start) {
+			i32 index = 0;
+
+			for (i32 i = 1; i < size; ++i) {
+				if (data_start[i] > data_start[index]) {
+					index = i;
+				}
+			}
+
+			return index;
+		}
+
+		template<class T>
+		static i32 index_of_min_value(i32 size, const T* data_start) {
+			i32 index = 0;
+
+			for (i32 i = 1; i < size; ++i) {
+				if (data_start[i] < data_start[index]) {
+					index = i;
+				}
+			}
+
+			return index;
 		}
 
 		template<class T>
@@ -181,7 +236,6 @@ namespace basicmath {
 			return factorial(n) / (factorial(k) * factorial(n - k));
 		}
 
-
 		template<class T>
 		static T add(const T* start, const T* stop) {
 			T res = 0;
@@ -221,6 +275,8 @@ namespace basicmath {
 
 			return mutiply(&elements[0], &elements[0] + (i32)elements.size());
 		}
+
+		
 	};
 
 	template<class T>

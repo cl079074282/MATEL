@@ -12,7 +12,7 @@ mt_mat mt_auto_derivative::derivate(const mt_mat& target, const mt_mat& src) {
 
 	mt_mat res(target, mt_mat::Construct_Type_Create_As_Size);
 
-	if (src.is_same(target)) {
+	if (src.same(target)) {
 		res.set(1);
 	} else {
 		res.set(0);
@@ -155,7 +155,7 @@ void mt_auto_derivative::record_math_operation(b8 enable) {
 	m_enable_math_operation = enable;
 }
 
-b8 mt_auto_derivative::is_math_operation_recorded() const {
+b8 mt_auto_derivative::math_operation_recorded() const {
 	return m_enable_math_operation;
 }
 

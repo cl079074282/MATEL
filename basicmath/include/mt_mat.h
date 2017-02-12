@@ -20,11 +20,11 @@ class mt_mat {
 	public:
 		mt_mat();
 
-		mt_mat(i32 cols, i32 depth_channel, const mt_scalar init_value = mt_scalar());
-		mt_mat(i32 rows, i32 cols, i32 depth_channel, const mt_scalar init_value = mt_scalar());
-		mt_mat(i32 planes, i32 rows, i32 cols, i32 depth_channel, const mt_scalar init_value = mt_scalar());
-		mt_mat(i32 dims, const i32* sizes, i32 depth_channel, const mt_scalar init_value = mt_scalar());
-		mt_mat(const vector<i32>& sizes, i32 depth_channel, const mt_scalar init_value = mt_scalar());
+		mt_mat(i32 cols, i32 depth_channel, const mt_scalar& init_value = mt_scalar());
+		mt_mat(i32 rows, i32 cols, i32 depth_channel, const mt_scalar& init_value = mt_scalar());
+		mt_mat(i32 planes, i32 rows, i32 cols, i32 depth_channel, const mt_scalar& init_value = mt_scalar());
+		mt_mat(i32 dims, const i32* sizes, i32 depth_channel, const mt_scalar& init_value = mt_scalar());
+		mt_mat(const vector<i32>& sizes, i32 depth_channel, const mt_scalar& init_value = mt_scalar());
 
 		mt_mat(i32 cols, i32 depth_channel, u8* data, const i32* steps);
 		mt_mat(i32 rows, i32 cols, i32 depth_channel, u8* data, const i32* steps);
@@ -69,7 +69,7 @@ class mt_mat {
 		vector<mt_mat> derivative(const vector<mt_mat>& others) const;
 		void derivative(vector<mt_mat>& reses, const vector<mt_mat>& others) const;
 		
-
+		b8 zero() const;
 		b8 empty() const;
 
 
@@ -132,9 +132,9 @@ class mt_mat {
 		void operator=(const mt_mat& other);
 		bool operator==(const mt_mat& other) const;
 		bool operator!=(const mt_mat& other) const;
-		bool is_memory_shared(const mt_mat& other) const;
-		bool is_same(const mt_mat& other) const;
-		bool is_same_size(const mt_mat& other) const;
+		b8 memory_shared(const mt_mat& other) const;
+		b8 same(const mt_mat& other) const;
+		b8 same_size(const mt_mat& other) const;
 		
 
 		mt_mat clone() const;
@@ -235,13 +235,13 @@ class mt_mat {
 		/** Determine the minimal abs step whether equals the element channel size. If the mat comes from channel_at() of other mat with more than 1 channel, this method will 
 			return false.  
 		*/
-		bool is_min_abs_step_equal_element_size() const;
+		b8 min_abs_step_equal_element_size() const;
 
 		/** Determine the memory whether is continuous in accessing stage (t() method may return a non-continuous mat even the memory is still continuous). Steps can be all positive or all negative.
 		*/
-		bool is_continuous() const;
-		bool is_step_positive() const;
-		bool is_step_negative() const;
+		b8 continuous() const;
+		b8 step_positive() const;
+		b8 step_negative() const;
 
 		bool valid_index(const vector<basicsys::i32>& indexs) const {
 			basiclog_assert2(!indexs.empty());
@@ -262,60 +262,60 @@ class mt_mat {
 		template<class T>
 		T& at(i32 index, i32 channel) {
 			on_vaule_changed();
-			return at(1, &index, channel);
+			return at<T>(1, &index, channel);
 		}
 
 		template<class T>
 		const T& at(i32 index, i32 channel) const {
-			return at(1, &index, channel);
+			return at<T>(1, &index, channel);
 		}
 
 		template<class T>
 		T& at(i32 index1, i32 index2, i32 channel) {
 			on_vaule_changed();
 			i32 indexes[] = {index1, index2};
-			return at(2, indexes, channel);
+			return at<T>(2, indexes, channel);
 		}
 
 		template<class T>
 		const T& at(i32 index1, i32 index2, i32 channel) const {
 			i32 indexes[] = {index1, index2};
-			return at(2, indexes, channel);
+			return at<T>(2, indexes, channel);
 		}
 
 		template<class T>
 		T& at(i32 index1, i32 index2, i32 index3, i32 channel) {
 			on_vaule_changed();
 			i32 indexes[] = {index1, index2, index3};
-			return at(3, indexes, channel);
+			return at<T>(3, indexes, channel);
 		}
 
 		template<class T>
 		const T& at(i32 index1, i32 index2, i32 index3, i32 channel) const {
 			i32 indexes[] = {index1, index2, index3};
-			return at(3, indexes, channel);
+			return at<T>(3, indexes, channel);
 		}
 
 		template<class T>
-		T& at(const vector<i32>& index, i32 channel = 0) {
+		T& at(const vector<i32>& index, i32 channel) {
 			on_vaule_changed();
-			return *ptr((i32)index.size(), &index[0], channel);
+			return *ptr<T>((i32)index.size(), &index[0], channel);
 		}
 
 		template<class T>
-		const T& at(const vector<i32>& index, i32 channel = 0) const {
-			return *ptr((int)index.size(), &index[0], channel);
+		const T& at(const vector<i32>& index, i32 channel) const {
+			return *ptr<T>((int)index.size(), &index[0], channel);
 		}
 
 		template<class T>
-		T& at(i32 size, const i32* indexs, i32 channel = 0) {
+		T& at(i32 size, const i32* indexs, i32 channel) {
 			on_vaule_changed();
-			return *ptr(size, indexs, channel);
+			return *ptr<T>(size, indexs, channel);
 		}
 
 		template<class T>
-		const T& at(i32 size, const int* indexs, i32 channel = 0) const {
-			return *ptr(size, indexs, channel);
+		const T& at(i32 size, const int* indexs, i32 channel) const {
+			return *ptr<T>(size, indexs, channel);
 		}
 
 		template<class T>
@@ -356,19 +356,20 @@ class mt_mat {
 		}
 
 		template<class T>
-		T* ptr(const vector<int>& index, int channel = 0) {
+		T* ptr(const vector<int>& index, int channel) {
 			on_vaule_changed();
 			return ptr<T>((int)index.size(), &index[0], channel);
 		}
 
 		template<class T>
-		const T* ptr(const vector<int>& index, int channel = 0) const {
+		const T* ptr(const vector<int>& index, int channel) const {
 			return ptr<T>((int)index.size(), &index[0], channel);
 		}
 
 		template<class T>
-		T* ptr(int size, const int* indexs, int channel = 0) {
+		T* ptr(int size, const int* indexs, int channel) {
 			on_vaule_changed();
+			basiclog_assert2(indexs != NULL);
 			basiclog_assert2(size <= m_dims);
 			basiclog_assert2(valid_index(size, indexs));
 
@@ -382,7 +383,7 @@ class mt_mat {
 		}
 
 		template<class T>
-		const T* ptr(int size, const int* indexs, int channel = 0) const {
+		const T* ptr(int size, const int* indexs, int channel) const {
 			return const_cast<mt_mat*>(this)->ptr<T>(size, indexs, channel);
 		}
 
@@ -451,7 +452,8 @@ class mt_mat {
 		mt_mat pooling(mt_mat& mask_mat, mt_Pooling_Type pooling_type, i32 size, const basicsys::i32* kernel_sizes, const basicsys::i32* strides) const;
 		mt_mat unpooling(const int* src_size, const mt_mat& mask_mat, mt_Pooling_Type pooling_type, i32 size, const int* kernel_sizes, const int* strides) const;
 
-		mt_mat expand(i32 size, const i32* side_sizes_1, const i32* side_size_2) const;
+		mt_mat expand(i32 size, const i32* side_sizes_1, const i32* side_size_2, const mt_scalar& filled_channel_value = mt_scalar(0)) const;
+		mt_mat expand(i32 size, const i32* side_sizes_1, const i32* side_size_2, const vector<f64>& filled_channel_value) const;
 
 		mt_mat sub_stride(i32 size, const i32* strides) const;
 
@@ -546,7 +548,7 @@ class mt_mat {
 	mt_mat operator*(const mt_scalar& value, const mt_mat& mat);
 	mt_mat operator/(const mt_scalar& value, const mt_mat& mat);
 
-	mt_mat operator+(const vector<f64>& value, const mt_mat& mat);
+    mt_mat operator+(const vector<f64>& value, const mt_mat& mat);
 	mt_mat operator-(const vector<f64>& value, const mt_mat& mat);
 	mt_mat operator*(const vector<f64>& value, const mt_mat& mat);
 	mt_mat operator/(const vector<f64>& value, const mt_mat& mat);
