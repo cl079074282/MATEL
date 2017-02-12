@@ -76,8 +76,8 @@
     <IncludePath>..\..\..\basiclog\include;..\..\..\basicsys\include;..\..\..\basicmath\include;..\..\..\basic_thrid_libs\lib_mkl\include;..\..\..\basic_thrid_libs\lib_opencv\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)lib\$(Platform)\vc11\</OutDir>
-    <IntDir>$(SolutionDir)intermediate\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>..\..\lib\$(Platform)\vc11\</OutDir>
+    <IntDir>..\..\intermediate\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>..\..\..\basiclog\include;..\..\..\basicsys\include;..\..\include;..\..\..\basic_thrid_libs\lib_opencv\include;..\..\..\basicmath\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

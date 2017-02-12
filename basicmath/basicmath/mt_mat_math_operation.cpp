@@ -60,7 +60,7 @@ namespace basicmath {
 						}
 
 						
-						if (src.valid_index(src_iter_indexs)) {
+						if (src.is_valid_index(src_iter_indexs)) {
 							const T* ptr_src_data = src.ptr<T>(src_iter_indexs, 0);
 							++in_src_number;
 
@@ -91,7 +91,7 @@ namespace basicmath {
 							src_iter_indexs[i] = src_start_indexs[i] + kernel_iter.position()[i];
 						}
 
-						if (src.valid_index(src_iter_indexs)) {
+						if (src.is_valid_index(src_iter_indexs)) {
 							const T* ptr_src_data = src.ptr<T>(src_iter_indexs, 0);
 							++in_src_number;
 							i32 mask_index = mt_helper::index_from_multi_index(src_iter_indexs, src.dim(), src.size());
@@ -169,7 +169,7 @@ namespace basicmath {
 							src_iter_indexs[i] = src_start_indexs[i] + kernel_iter.position()[i];
 						}
 
-						if (src.valid_index(src_iter_indexs)) {
+						if (src.is_valid_index(src_iter_indexs)) {
 							T* ptr_src_data = src.ptr<T>(src_iter_indexs, 0);
 
 							for (i32 c = 0; c < src.channel(); ++c) {
@@ -186,7 +186,7 @@ namespace basicmath {
 							src_iter_indexs[i] = src_start_indexs[i] + kernel_iter.position()[i];
 						}
 
-						if (src.valid_index(src_iter_indexs)) {
+						if (src.is_valid_index(src_iter_indexs)) {
 							++in_src_number;
 						}
 					}
@@ -198,7 +198,7 @@ namespace basicmath {
 							src_iter_indexs[i] = src_start_indexs[i] + kernel_iter.position()[i];
 						}
 
-						if (src.valid_index(src_iter_indexs)) {
+						if (src.is_valid_index(src_iter_indexs)) {
 							T* ptr_src_data = src.ptr<T>(src_iter_indexs, 0);
 
 							for (i32 c = 0; c < src.channel(); ++c) {
@@ -513,7 +513,7 @@ namespace basicmath {
 				T* ptr_res = dst.ptr<T>(dst.dim(), dst_sizes, 0);
 				T* ptr_mean = NULL;
 
-				if (!mean.empty()) {
+				if (!mean.is_empty()) {
 					ptr_mean = mean.ptr<T>(mean.dim(), dst_sizes, 0);
 				}
 
@@ -934,10 +934,10 @@ mt_mat mt_mat::mul(const mt_mat& value) const {
 
 #if defined BASICMATH_MKL
 
-	if (step_positive() 
-		&& value.step_positive()
-		&& min_abs_step_equal_element_size()
-		&& value.min_abs_step_equal_element_size()) {
+	if (is_step_positive() 
+		&& value.is_step_positive()
+		&& is_min_abs_step_equal_element_size()
+		&& value.is_min_abs_step_equal_element_size()) {
 			i32 row_a = size()[0];
 			i32 col_a = size()[1];
 
@@ -978,19 +978,19 @@ mt_mat mt_mat::mul(const mt_mat& value) const {
 			return res;
 	} else {
 		mt_mat temp_cur = *this;
-		if (step_negative()) {
+		if (is_step_negative()) {
 			basiclog_warning(basiclog_performance_warning, L"the step of current mat has negative values, this will reduce the performance, you should better input a mat with all positive steps!");
 			temp_cur = clone();
-		} else if (!min_abs_step_equal_element_size()) {
+		} else if (!is_min_abs_step_equal_element_size()) {
 			basiclog_warning(basiclog_performance_warning, L"this mat is result of the channel_at() on a mat with more than 1 channel, this will reduce the performance!");
 			temp_cur = clone();
 		}
 
 		mt_mat temp_value = value;
-		if (value.step_negative()) {
+		if (value.is_step_negative()) {
 			basiclog_warning(basiclog_performance_warning, L"the step of other mat has negative values, this will reduce the performance, you should better input a mat with all positive steps!");
 			temp_value = value.clone();
-		} else if (!value.min_abs_step_equal_element_size()) {
+		} else if (!value.is_min_abs_step_equal_element_size()) {
 			basiclog_warning(basiclog_performance_warning, L"other mat is result of the channel_at() on a mat with more than 1 channel, this will reduce the performance!");
 			temp_value = value.clone();
 		}
@@ -1263,7 +1263,7 @@ mt_mat& mt_mat::self_activate(mt_Activate_Type type, i32 activate_param_size, co
 mt_mat mt_mat::loss(const mt_mat& matching_mat, mt_Loss_Type type) const {
 	basiclog_assert2(depth() == mt_F32 || depth() == mt_F64);
 	basiclog_assert2(dim() == matching_mat.dim());
-	basiclog_assert2(same_size(matching_mat));
+	basiclog_assert2(is_same_size(matching_mat));
 
 	if (depth() == mt_F32) {
 		return private_math_operation::loss<f32>(*this, matching_mat, type);
@@ -1321,7 +1321,7 @@ void mt_mat::eigen(mt_mat& eigen_value, mt_mat& eigen_vector) const {
 	basiclog_assert2(dim() == 2);
 	basiclog_assert2(depth_channel() == mt_F32C1 || depth_channel() == mt_F64C1);
 
-	if (min_abs_step_equal_element_size() || step_positive() || step()[0] < step()[1]) {
+	if (is_min_abs_step_equal_element_size() || is_step_positive() || step()[0] < step()[1]) {
 		clone().eigen(eigen_value, eigen_vector);
 		return;
 	}

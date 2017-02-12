@@ -69,8 +69,8 @@ class mt_mat {
 		vector<mt_mat> derivative(const vector<mt_mat>& others) const;
 		void derivative(vector<mt_mat>& reses, const vector<mt_mat>& others) const;
 		
-		b8 zero() const;
-		b8 empty() const;
+		b8 is_zero() const;
+		b8 is_empty() const;
 
 
 		/**
@@ -132,9 +132,9 @@ class mt_mat {
 		void operator=(const mt_mat& other);
 		bool operator==(const mt_mat& other) const;
 		bool operator!=(const mt_mat& other) const;
-		b8 memory_shared(const mt_mat& other) const;
-		b8 same(const mt_mat& other) const;
-		b8 same_size(const mt_mat& other) const;
+		b8 is_memory_shared(const mt_mat& other) const;
+		b8 is_same(const mt_mat& other) const;
+		b8 is_same_size(const mt_mat& other) const;
 		
 
 		mt_mat clone() const;
@@ -235,28 +235,28 @@ class mt_mat {
 		/** Determine the minimal abs step whether equals the element channel size. If the mat comes from channel_at() of other mat with more than 1 channel, this method will 
 			return false.  
 		*/
-		b8 min_abs_step_equal_element_size() const;
+		b8 is_min_abs_step_equal_element_size() const;
 
 		/** Determine the memory whether is continuous in accessing stage (t() method may return a non-continuous mat even the memory is still continuous). Steps can be all positive or all negative.
 		*/
-		b8 continuous() const;
-		b8 step_positive() const;
-		b8 step_negative() const;
+		b8 is_continuous() const;
+		b8 is_step_positive() const;
+		b8 is_step_negative() const;
 
-		bool valid_index(const vector<basicsys::i32>& indexs) const {
+		b8 is_valid_index(const vector<basicsys::i32>& indexs) const {
 			basiclog_assert2(!indexs.empty());
 
-			return valid_index((basicsys::i32)indexs.size(), &indexs[0]);
+			return is_valid_index((basicsys::i32)indexs.size(), &indexs[0]);
 		}
 
-		bool valid_index(int size, const int* indexs) const {
+		b8 is_valid_index(int size, const int* indexs) const {
 			for (int i = 0; i < size; ++i) {
 				if (indexs[i] >= this->size()[i] || indexs[i] < 0) {
-					return false;
+					return basicsys::sys_false;
 				}
 			}
 
-			return true;
+			return basicsys::sys_true;
 		}
 
 		template<class T>
@@ -371,7 +371,7 @@ class mt_mat {
 			on_vaule_changed();
 			basiclog_assert2(indexs != NULL);
 			basiclog_assert2(size <= m_dims);
-			basiclog_assert2(valid_index(size, indexs));
+			basiclog_assert2(is_valid_index(size, indexs));
 
 			u8* ptr_data = m_data;
 

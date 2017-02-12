@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basicmath", "build\msvc\basicmath.vcxproj", "{15EF2B0A-7D1A-4DFF-B114-A3F776246245}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "build\msvc\test.vcxproj", "{70959FC4-72CC-4513-AA48-B2AC3333015F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basicmath_test", "build\msvc\basicmath_test.vcxproj", "{70959FC4-72CC-4513-AA48-B2AC3333015F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{15EF2B0A-7D1A-4DFF-B114-A3F776246245} = {15EF2B0A-7D1A-4DFF-B114-A3F776246245}
 	EndProjectSection

@@ -266,7 +266,7 @@ mt_mat mt_mat::derivative(const mt_mat& other) const {
 	return m_auto_derivative->derivate(other, *this);
 }
 
-b8 mt_mat::zero() const {
+b8 mt_mat::is_zero() const {
 	mt_array_element_const_iterator iter(*this);
 
 	for (;;) {
@@ -286,7 +286,7 @@ b8 mt_mat::zero() const {
 	return sys_true;
 }
 
-b8 mt_mat::empty() const {
+b8 mt_mat::is_empty() const {
 	return m_data == NULL;
 }
 
@@ -350,11 +350,11 @@ bool mt_mat::operator!=(const mt_mat& other) const {
 	return !(*this == other);
 }
 
-b8 mt_mat::memory_shared(const mt_mat& other) const {
+b8 mt_mat::is_memory_shared(const mt_mat& other) const {
 	return m_shared_memory == other.m_shared_memory;
 }
 
-b8 mt_mat::same(const mt_mat& other) const {
+b8 mt_mat::is_same(const mt_mat& other) const {
 	if (m_shared_memory != other.m_shared_memory) {
 		return sys_false;
 	}
@@ -411,7 +411,7 @@ mt_mat& mt_mat::set_incremental(double value, b8 same_value_for_multi_channel) {
 
 mt_mat& mt_mat::set(const mt_mat& other) {
 	on_vaule_changed();
-	basiclog_assert2(same_size(other));
+	basiclog_assert2(is_same_size(other));
 	
 	if (depth() == other.depth()) {
 		mt_array_iteration::array_copy(data(), other.data(), other.dim(), other.size(), step(), other.step(), other.element_size());
@@ -619,7 +619,7 @@ void mt_mat::operator =(const mt_mat& other) {
 	}
 }
 
-b8 mt_mat::same_size(const mt_mat& other) const {
+b8 mt_mat::is_same_size(const mt_mat& other) const {
 	if (m_dims == other.m_dims && channel() == other.channel()) {
 		b8 same_flag = true;
 		for (int i = 0; i < m_dims; ++i) {
@@ -706,11 +706,11 @@ int mt_mat::element_number() const {
 	return res;
 }
 
-b8 mt_mat::min_abs_step_equal_element_size() const {
+b8 mt_mat::is_min_abs_step_equal_element_size() const {
 	return element_size() == mt_helper::compute_abs_min(step(), dim());
 }
 
-b8 mt_mat::continuous() const {
+b8 mt_mat::is_continuous() const {
 	return mt_array_iteration::get_continuous_dim(dim(), size(), step(), element_channel_size()) == 0;
 }
 
@@ -767,7 +767,7 @@ mt_mat mt_mat::reshape(const vector<int>& sizes) const {
 }
 
 mt_mat mt_mat::reshape(int dims, const int* sizes) const {
-	if (!continuous()) {
+	if (!is_continuous()) {
 		basiclog_warning(basiclog_performance_warning, L"current mat is not continuous, hence we need to clone one mat to reshape it!");
 		return clone().reshape(dims, sizes);
 	}
@@ -1326,7 +1326,7 @@ void mt_mat::get_index(vector<int>& index, const u8* ptr_data) const {
 	}
 }
 
-b8 mt_mat::step_positive() const {
+b8 mt_mat::is_step_positive() const {
 	for (i32 i = 0; i < m_dims; ++i) {
 		if (step()[i] < 0) {
 			return sys_false;
@@ -1336,7 +1336,7 @@ b8 mt_mat::step_positive() const {
 	return sys_true;
 }
 
-b8 mt_mat::step_negative() const {
+b8 mt_mat::is_step_negative() const {
 	for (i32 i = 0; i < m_dims; ++i) {
 		if (step()[i] > 0) {
 			return sys_false;

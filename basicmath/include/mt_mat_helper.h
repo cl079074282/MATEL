@@ -215,7 +215,7 @@ namespace basicmath {
 		}
 
 		static void mat_operation(mt_mat& res, const mt_mat& a, const mt_mat& b, Math_Op_Code code) {
-			basiclog_assert2(a.same_size(b));
+			basiclog_assert2(a.is_same_size(b));
 
 			mt_array_element_const_iterator iter_a(a);
 			mt_array_element_const_iterator iter_b(b);

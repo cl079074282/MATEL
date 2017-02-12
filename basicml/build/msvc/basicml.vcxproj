@@ -18,33 +18,72 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\basicml\stdafx\stdafx.h" />
+    <ClInclude Include="..\..\include\basicml.h" />
+    <ClInclude Include="..\..\include\data\ml_data.h" />
+    <ClInclude Include="..\..\include\data\ml_predict_result.h" />
+    <ClInclude Include="..\..\include\ml_helper.h" />
+    <ClInclude Include="..\..\include\ml_algorithm.h" />
+    <ClInclude Include="..\..\include\ml_model_config.h" />
+    <ClInclude Include="..\..\include\ml_statistic_info.h" />
+    <ClInclude Include="..\..\include\ml_supervised_data.h" />
+    <ClInclude Include="..\..\include\ml_supervised_algorithm.h" />
+    <ClInclude Include="..\..\include\ml_types.h" />
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_batch_norm_linked_layer.h" />
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_data_layer.h" />
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_inner_product_linked_layer.h" />
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_input_data_layer.h" />
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_layer.h" />
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_layer_learning_params.h" />
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_linked_layer.h" />
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_output_data_layer.h" />
+    <ClInclude Include="..\..\include\neural_network\ml_bsgd_learning_param_updater.h" />
+    <ClInclude Include="..\..\include\neural_network\ml_learning_param_updater.h" />
+    <ClInclude Include="..\..\include\neural_network\ml_neural_network.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\basicml\data\ml_data.cpp" />
+    <ClCompile Include="..\..\basicml\ml_helper.cpp" />
+    <ClCompile Include="..\..\basicml\ml_predict_result.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_batch_norm_linked_layer.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_data_layer.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_inner_product_linked_layer.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_input_data_layer.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_layer.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_linked_layer.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_output_data_layer.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\ml_bsgd_learning_param_updater.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\ml_learning_param_updater.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\ml_neural_network.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{70959FC4-72CC-4513-AA48-B2AC3333015F}</ProjectGuid>
+    <ProjectGuid>{94E97D02-4904-496F-BD18-77B94FA28D55}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>test</RootNamespace>
+    <RootNamespace>basicml</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -66,22 +105,10 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>..\..\..\basiclog\include;..\..\..\basicsys\include;..\..\include;..\..\..\basic_thrid_libs\lib_mkl\include;..\..\..\basic_thrid_libs\lib_intel_compiler\include;$(IncludePath)</IncludePath>
-    <LibraryWPath>$(LibraryWPath)</LibraryWPath>
-    <IntDir>$(SolutionDir)intermediate\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>..\..\..\basiclog\lib\x64\vc11;..\..\..\basicsys\lib\x64\vc11;..\..\lib\x64\vc11;..\..\..\basic_thrid_libs\lib_mkl\lib\x64;..\..\..\basic_thrid_libs\lib_intel_compiler\lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>..\..\lib\$(Platform)\vc11\</OutDir>
+    <IntDir>..\..\intermediate\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IncludePath>..\..\..\basiclog\include;..\..\..\basicsys\include;..\..\..\basicmath\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,10 +116,11 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -102,10 +130,11 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -117,10 +146,11 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
@@ -134,24 +164,17 @@
       <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\include;..\..\include\neural_network;..\..\include\neural_network\layer;..\..\basicml\stdafx;..\..\include\data;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>basicsys.lib;basiclog.lib;basicmath.lib;mkl_core.lib;mkl_intel_lp64.lib;mkl_intel_thread.lib;libiomp5md.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\basicmath\mt_mat_test.cpp" />
-    <ClCompile Include="..\..\basicmath\test.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\basicmath\test.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

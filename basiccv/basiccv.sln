@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basiccv", "build\msvc\basiccv.vcxproj", "{25EA893F-39E4-4747-9496-ECA9701D2BE8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "build\msvc\test.vcxproj", "{780E3E51-06BF-44C6-B4B5-9AAC9AA41E58}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basiccv_test", "build\msvc\basiccv_test.vcxproj", "{780E3E51-06BF-44C6-B4B5-9AAC9AA41E58}"
 	ProjectSection(ProjectDependencies) = postProject
 		{25EA893F-39E4-4747-9496-ECA9701D2BE8} = {25EA893F-39E4-4747-9496-ECA9701D2BE8}
 	EndProjectSection

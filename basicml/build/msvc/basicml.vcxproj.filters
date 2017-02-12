@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="..\..\include\basicml.h" />
+    <ClInclude Include="..\..\include\ml_helper.h" />
+    <ClInclude Include="..\..\include\ml_supervised_data.h" />
+    <ClInclude Include="..\..\include\ml_types.h" />
+    <ClInclude Include="..\..\include\neural_network\ml_neural_network.h">
+      <Filter>neural_network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_layer.h">
+      <Filter>neural_network\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_data_layer.h">
+      <Filter>neural_network\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_linked_layer.h">
+      <Filter>neural_network\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\neural_network\ml_learning_param_updater.h">
+      <Filter>neural_network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_inner_product_linked_layer.h">
+      <Filter>neural_network\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_layer_learning_params.h">
+      <Filter>neural_network\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_input_data_layer.h">
+      <Filter>neural_network\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_output_data_layer.h">
+      <Filter>neural_network\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\data\ml_data.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ml_model_config.h" />
+    <ClInclude Include="..\..\basicml\stdafx\stdafx.h" />
+    <ClInclude Include="..\..\include\neural_network\layer\ml_nn_batch_norm_linked_layer.h">
+      <Filter>neural_network\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ml_statistic_info.h" />
+    <ClInclude Include="..\..\include\ml_supervised_algorithm.h" />
+    <ClInclude Include="..\..\include\ml_algorithm.h" />
+    <ClInclude Include="..\..\include\data\ml_predict_result.h" />
+    <ClInclude Include="..\..\include\neural_network\ml_bsgd_learning_param_updater.h">
+      <Filter>neural_network</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="neural_network">
+      <UniqueIdentifier>{55336172-7fd2-4b2d-874d-4551dcbada05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="decision_tree">
+      <UniqueIdentifier>{b7f28dde-c0e6-4a1a-9766-ccf609238637}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="neural_network\layer">
+      <UniqueIdentifier>{fb34e8fc-37de-41cf-ad5f-2319df09520e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{a136d4c1-60a7-4dd1-9642-6731ca445f1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cluster">
+      <UniqueIdentifier>{b2521dd0-ee98-4e4f-b7ed-313093fbc98a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\basicml\neural_network\ml_neural_network.cpp">
+      <Filter>neural_network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_data_layer.cpp">
+      <Filter>neural_network\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_inner_product_linked_layer.cpp">
+      <Filter>neural_network\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_layer.cpp">
+      <Filter>neural_network\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_linked_layer.cpp">
+      <Filter>neural_network\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_input_data_layer.cpp">
+      <Filter>neural_network\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_output_data_layer.cpp">
+      <Filter>neural_network\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\data\ml_data.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_batch_norm_linked_layer.cpp">
+      <Filter>neural_network\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\ml_helper.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\ml_learning_param_updater.cpp">
+      <Filter>neural_network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\ml_predict_result.cpp" />
+    <ClCompile Include="..\..\basicml\neural_network\ml_bsgd_learning_param_updater.cpp">
+      <Filter>neural_network</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
