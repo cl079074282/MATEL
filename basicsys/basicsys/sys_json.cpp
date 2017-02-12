@@ -325,8 +325,6 @@ b8 sys_json_writer::check_str(const wstring& str) {
 }
 
 void sys_json_writer::binary_write_str(const wstring& str) {
-	basiclog_assert2(!str.empty());
-
 	if (str == L"{") {
 		m_envs.push_back(sys_Json_Envrionment_Map);
 		m_json_expected = sys_Json_Expected_Name;
@@ -354,6 +352,8 @@ void sys_json_writer::binary_write_str(const wstring& str) {
 		check_str(str);
 
 		if (m_json_expected == sys_Json_Expected_Name) {
+			basiclog_assert2(!str.empty());
+
 			m_writer->write((i32)(str.size() * sizeof(c16)));
 			m_writer->write(str);
 
@@ -671,39 +671,46 @@ void sys_json_reader::text_load_struct_info() {
 	if (m_node_type == sys_Json_Envrionment_Seq) {
 		i32 valid_index = (i32)text.find_first_not_of(L'\t');
 
-		basiclog_assert2(valid_index != -1);
+		if (valid_index != -1) {
+			c16 first_character = text[valid_index];
+			if (first_character == L'{' || first_character == L'[') {
+				i32 last_index = 0;
 
-		c16 first_character = text[valid_index];
-		if (first_character == L'{' || first_character == L'[') {
-			i32 last_index = 0;
+				while (last_index < (i32)text.size()) {
+					i32 node_data_start_index = (i32)text.find_first_not_of(L'\t', last_index);
 
-			while (last_index < (i32)text.size()) {
-				i32 node_data_start_index = (i32)text.find_first_not_of(L'\t', last_index) + 2;  //need skip { or [, and \n		
-				i32 node_data_stop_index = find_match_character(text, first_character, node_data_start_index);
-				basiclog_assert2(node_data_stop_index != -1);
-				basiclog_assert2(node_data_stop_index == (i32)text.size() - 1 || text[node_data_stop_index + 1] == L'\n');
+					if (node_data_start_index == -1) {
+						break;
+					}
 
-				//basiclog_info2(text.substr(node_data_start_index, node_data_stop_index - node_data_start_index));
+					node_data_start_index += 2;  //need skip { or [, and \n	
 
-				sys_json_reader node(m_reader, L"", m_offset + node_data_start_index * sizeof(c16), (node_data_stop_index - node_data_start_index) * sizeof(c16), first_character == L'{' ? sys_Node_Type_Map : sys_Node_Type_Seq);
-				m_seq_nodes.push_back(node);
+					i32 node_data_stop_index = find_match_character(text, first_character, node_data_start_index);
+					basiclog_assert2(node_data_stop_index != -1);
+					basiclog_assert2(node_data_stop_index == (i32)text.size() - 1 || text[node_data_stop_index + 1] == L'\n');
 
-				last_index = node_data_stop_index + 2; //need skip } or ], and \n
-			}
-		} else {
-			//must be element!
-			int last_index = valid_index;
-			for (i32 i = last_index; i < (i32)text.size(); ++i) {
-				if (text.at(i) == L'\t' || text.at(i) == L'\n') {
-					basiclog_assert2(i > last_index);
+					//basiclog_info2(text.substr(node_data_start_index, node_data_stop_index - node_data_start_index));
 
-					sys_json_reader node(m_reader, L"", m_offset + last_index * sizeof(c16), (i32)(i - last_index) * sizeof(c16), sys_Node_Type_Text); //not include the last '\t'
+					sys_json_reader node(m_reader, L"", m_offset + node_data_start_index * sizeof(c16), (node_data_stop_index - node_data_start_index) * sizeof(c16), first_character == L'{' ? sys_Node_Type_Map : sys_Node_Type_Seq);
 					m_seq_nodes.push_back(node);
 
-					last_index = i + 1; //need skip \t
+					last_index = node_data_stop_index + 2; //need skip } or ], and \n
+				}
+			} else {
+				//must be element!
+				int last_index = valid_index;
+				for (i32 i = last_index; i < (i32)text.size(); ++i) {
+					if (text.at(i) == L'\t' || text.at(i) == L'\n') {
+						//basiclog_assert2(i > last_index);
 
-					if (text[i] == L'\n') {
-						break;
+						sys_json_reader node(m_reader, L"", m_offset + last_index * sizeof(c16), (i32)(i - last_index) * sizeof(c16), sys_Node_Type_Text); //not include the last '\t'
+						m_seq_nodes.push_back(node);
+
+						last_index = i + 1; //need skip \t
+
+						if (text[i] == L'\n') {
+							break;
+						}
 					}
 				}
 			}
@@ -771,9 +778,9 @@ void sys_json_reader::binary_load_struct_info() {
 
 			i32 node_data_size = reader->read_i32();
 
-			if (node_type != sys_Node_Type_Map && node_type != sys_Node_Type_Seq) {
-				basiclog_assert2(node_data_size > 0);
-			}
+			//if (node_type != sys_Node_Type_Map && node_type != sys_Node_Type_Seq) {
+			//	basiclog_assert2(node_data_size > 0);
+			//}
 			
 			sys_json_reader node(reader, L"", reader->position(), node_data_size, node_type);
 			m_seq_nodes.push_back(node);

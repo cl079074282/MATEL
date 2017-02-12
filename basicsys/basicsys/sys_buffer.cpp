@@ -229,7 +229,7 @@ f64 sys_byte_buffer_reader::read_f64() const {
 }
 
 void sys_byte_buffer_reader::read_str(wstring& str, i32 size) const {
-	basiclog_assert2(size > 0 && size % 2 == 0);
+	basiclog_assert2(size % 2 == 0);
 
 	if (remain_size() < size) {
 		m_io_status = sys_IO_Status_Error_Eof;
@@ -266,7 +266,7 @@ void sys_byte_buffer_reader::read(vector<u8>& data, i32 size) const {
 }
 
 void sys_byte_buffer_reader::read(u8* data, i32 size) const {
-	basiclog_assert2(size > 0);
+	basiclog_assert2(size >= 0);
 
 	if (remain_size() < size) {
 		m_io_status = sys_IO_Status_Error_Eof;
@@ -760,8 +760,9 @@ void sys_string_file_buffer_writer::close() {
 
 sys_buffer_writer* sys_string_file_buffer_writer::write(const wstring& val) {
 	i32 size = (i32)val.size() * sizeof(c16);
+	i32 f_res = val.empty() ? 0 : 1;
 
-	if (fwrite(val.c_str(), size, 1, m_file) != 1) {
+	if (fwrite(val.c_str(), size, 1, m_file) != f_res) {
 		m_io_status = sys_IO_Status_Error_File_Operation;
 		basiclog_warning2(L"failed to fwrite");
 	}
@@ -863,7 +864,9 @@ void sys_string_file_buffer_reader::read_str(wstring& str, i32 size) const {
 	i32 character_count = size / sizeof(wchar_t);
 	wchar_t* temp = new wchar_t[character_count + 1];
 
-	if (fread(temp, size, 1, m_file) != 1) {
+	i32 f_res = size == 0 ? 0 : 1;
+
+	if (fread(temp, size, 1, m_file) != f_res) {
 		m_io_status = sys_IO_Status_Error_File_Operation;
 		basiclog_warning2(L"failed to fread");
 	}

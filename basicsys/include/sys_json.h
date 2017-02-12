@@ -176,6 +176,10 @@ namespace basicsys {
 			return val;
 		}
 
+		const wstring& node_name() const {
+			return m_node_name;
+		}
+
 	protected:
 
 		sys_buffer_reader* m_reader;
