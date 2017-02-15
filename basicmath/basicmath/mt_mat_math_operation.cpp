@@ -468,18 +468,18 @@ namespace basicmath {
 		static void eigen(mt_mat& eigen_value, mt_mat& eigen_vector, const mt_mat& mat) {
 			T eps = (T)0;
 			if (typeid(T) == typeid(f32)) {
-				eps = (T)mt_helper::get_float_eps()*100;
+				eps = (T)mt_helper::get_float_eps() * 100;
 			} else if (typeid(T) == typeid(f64)) {
-				eps = (T)mt_helper::get_double_eps()*100;
+				eps = (T)mt_helper::get_double_eps() * 100;
 			} else {
 				basiclog_unsupport2();
 				return;
 			}
 
-			basiclog_debug2(sys_strhelper::combine(L"esplion: %f" ,eps));
+			basiclog_debug2(sys_strhelper::combine(L"esplion: %f", eps));
 
-			int n = mat.size()[0];
-			vector<int> buffer(n*2, 0);
+			i32 n = mat.size()[0];
+			vector<i32> buffer(n * 2, 0);
 			eigen_value = mt_mat(1, n, mat.depth_channel());
 			eigen_vector = mt_mat(n, n, mat.depth_channel());
 
@@ -487,50 +487,47 @@ namespace basicmath {
 		}
 
 		template<typename T> 
-		static T hypot(T a, T b)
-		{
+		static T hypot(T a, T b) {
 			a = std::fabs(a);
 			b = std::fabs(b);
-			if( a > b )
-			{
+			if (a > b) {
 				b /= a;
-				return a*std::sqrt(1 + b*b);
+				return a * std::sqrt(1 + b * b);
 			}
-			if( b > 0 )
-			{
+			if (b > 0) {
 				a /= b;
-				return b*std::sqrt(1 + a*a);
+				return b * std::sqrt(1 + a * a);
 			}
 			return 0;
 		}
 
 		template<typename T> 
-		static void jacobi(T* mat, int step, int n, T* ev, T* ec, i8* buf, T eps) {
+		static void jacobi(T* mat, i32 step, i32 n, T* ev, T* ec, i8* buf, T eps) {
 			//
-			int i, j, k, m;
+			i32 i, j, k, m;
 
 			step /= sizeof(mat[0]);
 			if (ec) {
 				for (i = 0; i < n; i++) {
 					for (j = 0; j < n; j++) {
-						ec[i*step + j] = (T)0;
+						ec[i * step + j] = (T)0;
 					}
-					ec[i*step + i] = (T)1;
+					ec[i * step + i] = (T)1;
 				}
 			}
 
-			int iters, max_iters = n*n*30;
+			i32 iters, max_iters = n * n * 30;
 
 			// FIXME: align buffer
-			int* indr = (int*)buf;
-			int* indc = indr + n;
+			i32* indr = (i32*)buf;
+			i32* indc = indr + n;
 			T mv = (T)0;
 
 			for (k = 0; k < n; k++) {
-				ev[k] = mat[(step + 1)*k];
+				ev[k] = mat[(step + 1) * k];
 				if (k < n - 1) {
-					for(m = k+1, mv = std::fabs(mat[step*k + m]), i = k+2; i < n; i++) {
-						T val = std::fabs(mat[step*k+i]);
+					for(m = k + 1, mv = std::fabs(mat[step * k + m]), i = k + 2; i < n; i++) {
+						T val = std::fabs(mat[step * k + i]);
 						if( mv < val ) {
 							mv = val, m = i;
 						}
@@ -539,7 +536,7 @@ namespace basicmath {
 				}
 				if (k > 0) {
 					for (m = 0, mv = std::fabs(mat[k]), i = 1; i < k; i++) {
-						T val = std::fabs(mat[step*i+k]);
+						T val = std::fabs(mat[step * i + k]);
 						if(mv < val) {
 							mv = val, m = i;
 						}
@@ -552,14 +549,14 @@ namespace basicmath {
 				for (iters = 0; iters < max_iters; iters++) {
 					// log eigen values and eigen vectors of each iteration
 					if(basiclog::log_logger::get_logger() != NULL && basiclog::log_logger::get_logger()->is_enable_debug()) {
-						basiclog_debug2(sys_strhelper::combine(L"iteration %d :", iters));
-						for(int i = 0; i < n; ++i) {
-							basiclog_debug2(sys_strhelper::combine(L"e%d = %f", i+1, ev[i]));
+						basiclog_debug2(sys_strcombine() << L"iteration " << iters << L" :");
+						for(i32 i = 0; i < n; ++i) {
+							basiclog_debug2(sys_strcombine() << L"e" << i << L" = " << ev[i]);
 							sys_strcombine str;
 							str << L"v" << i << L" = (";
 							for(j = 0; j < n; ++j) {
-								str << ec[step*i + j];
-								if(j != n-1) {
+								str << ec[step * i + j];
+								if(j != n - 1) {
 									str << L", ";
 								}
 							}
@@ -569,33 +566,33 @@ namespace basicmath {
 					}
 					
 					// find index (k,l) of pivot p
-					for (k = 0, mv = std::fabs(mat[indr[0]]), i = 1; i < n-1; i++) {
-						T val = std::fabs(mat[step*i + indr[i]]);
+					for (k = 0, mv = std::fabs(mat[indr[0]]), i = 1; i < n - 1; i++) {
+						T val = std::fabs(mat[step * i + indr[i]]);
 						if (mv < val) {
 							mv = val, k = i;
 						}
 					}
-					int l = indr[k];
+					i32 l = indr[k];
 					for (i = 1; i < n; i++) {
-						T val = std::fabs(mat[step*indc[i] + i]);
+						T val = std::fabs(mat[step * indc[i] + i]);
 						if (mv < val) {
 							mv = val, k = indc[i], l = i;
 						}
 					}
 
-					T p = mat[step*k + l];
+					T p = mat[step * k + l];
 					if (std::fabs(p) <= eps) {
 						break;
 					}
-					T y = (T)((ev[l] - ev[k])*0.5);
+					T y = (T)((ev[l] - ev[k]) * 0.5);
 					T t = (T)std::fabs(y) + hypot(p, y);
 					T s = hypot(p, t);
 					T c = t/s;
-					s = p/s; t = (p/t)*p;
+					s = p/s; t = (p/t) * p;
 					if (y < 0) {
 						s = -s, t = -t;
 					}
-					mat[step*k + l] = 0;
+					mat[step * k + l] = 0;
 
 					ev[k] -= t;
 					ev[l] += t;
@@ -603,32 +600,32 @@ namespace basicmath {
 					T a0, b0;
 
 #undef rotate
-#define rotate(v0, v1) a0 = v0, b0 = v1, v0 = a0*c - b0*s, v1 = a0*s + b0*c
+#define rotate(v0, v1) a0 = v0, b0 = v1, v0 = a0 * c - b0 * s, v1 = a0 * s + b0 * c
 
 					// rotate rows and columns k and l
 					for (i = 0; i < k; i++) {
-						rotate(mat[step*i+k], mat[step*i+l]);
+						rotate(mat[step * i + k], mat[step * i + l]);
 					}
-					for (i = k+1; i < l; i++) {
-						rotate(mat[step*k+i], mat[step*i+l]);
+					for (i = k + 1; i < l; i++) {
+						rotate(mat[step * k + i], mat[step * i + l]);
 					}
-					for (i = l+1; i < n; i++) {
-						rotate(mat[step*k+i], mat[step*l+i]);
+					for (i = l + 1; i < n; i++) {
+						rotate(mat[step * k + i], mat[step * l + i]);
 					}
 
 					// rotate eigenvectors
 					if (ec) {
 						for (i = 0; i < n; i++) {
-							rotate(ec[step*k+i], ec[step*l+i]);
+							rotate(ec[step * k + i], ec[step * l + i]);
 						}
 					}
 #undef rotate
 				
 					for (j = 0; j < 2; j++) {
-						int idx = j == 0 ? k : l;
+						i32 idx = j == 0 ? k : l;
 						if (idx < n - 1) {
-							for (m = idx+1, mv = std::fabs(mat[step*idx + m]), i = idx+2; i < n; i++) {
-								T val = std::fabs(mat[step*idx+i]);
+							for (m = idx + 1, mv = std::fabs(mat[step * idx + m]), i = idx + 2; i < n; i++) {
+								T val = std::fabs(mat[step * idx + i]);
 								if (mv < val) {
 									mv = val, m = i;
 								}
@@ -637,7 +634,7 @@ namespace basicmath {
 						}
 						if (idx > 0) {
 							for (m = 0, mv = std::fabs(mat[idx]), i = 1; i < idx; i++) {
-								T val = std::fabs(mat[step*i+idx]);
+								T val = std::fabs(mat[step * i + idx]);
 								if (mv < val) {
 									mv = val, m = i;
 								}
@@ -649,9 +646,9 @@ namespace basicmath {
 			}
 			
 			// sort eigenvalues & eigenvectors
-			for (k = 0; k < n-1; k++) {
+			for (k = 0; k < n - 1; k++) {
 				m = k;
-				for (i = k+1; i < n; i++) {
+				for (i = k + 1; i < n; i++) {
 					if (ev[m] < ev[i]) {
 						m = i;
 					}
@@ -660,7 +657,7 @@ namespace basicmath {
 					std::swap(ev[m], ev[k]);
 					if (ec) {
 						for (i = 0; i < n; i++) {
-							std::swap(ec[step*m + i], ec[step*k + i]);
+							std::swap(ec[step * m + i], ec[step * k + i]);
 						}
 					}
 				}

@@ -456,13 +456,13 @@ static void test_eigen() {
 	sys_test_equal(ev, result_ev);
 	sys_test_equal(ec, result_ec);
 	
-	int n = ev.element_number();
+	i32 n = ev.element_number();
 	basiclog_debug2(L"result:");
-	for(int i = 0; i < n; ++i) {
-		basiclog_debug2(sys_strhelper::combine(L"e%d = %f", i+1, ev.at<f32>(0, i, 1)));
+	for(i32 i = 0; i < n; ++i) {
+		basiclog_debug2(sys_strcombine() << L"e" << i << L" = " << ev.at<f32>(0, i, 1));
 		sys_strcombine str;
-		str << L"v" << i << L" = (";
-		for(int j = 0; j < n; ++j) {
+		str << L"v" << i  << L" = (";
+		for(i32 j = 0; j < n; ++j) {
 			str << ec.at<f32>(i, j, 1);
 			if(j != n-1) {
 				str << L", ";
