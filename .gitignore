@@ -147,3 +147,4 @@ Icon
 ## hack for graddle wrapper
 !wrapper/*.jar
 !**/wrapper/*.jar
+basicmath/bin/
