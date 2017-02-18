@@ -11,8 +11,9 @@ namespace basicmath {
 
 	class mt_auto_derivative {
 	public:
-		mt_auto_derivative() {
+		mt_auto_derivative(i32 max_cache_size = 30) {
 			m_enable_math_operation = sys_true;
+			m_max_cache_size = max_cache_size;
 		}
 
 		~mt_auto_derivative();
@@ -62,25 +63,16 @@ namespace basicmath {
 		void record_math_operation(b8 enable);
 		b8 math_operation_recorded() const; 
 
-
 		void reset();
-
-		
 
 	protected:
 
-		void check_res_mat(const mt_mat& mat) const;
-		void check_math_op_mat(const mt_mat& mat) const;
-
 		mt_ad_tree_node* find_same(const mt_mat& mat) const;
 
-		b8 has_related(const mt_mat& mat) const;
 		mt_ad_tree_node* get_node(const mt_mat& mat);
 		mt_ad_tree_node* get_node(const vector<double>& const_value);
 
-		void get_path_from_target_to_src(vector<mt_ad_mat_tree_node*>& path_nodes, mt_ad_tree_node* target_nodes, mt_ad_tree_node* src_node);
-
-		void derivate(mt_mat& derivated_mat, const mt_mat& target_mat, mt_ad_tree_node* src_node);
+		void derivate(mt_mat& derivated_mat, const mt_mat& target_mat, const mt_mat& src_mat, mt_ad_tree_node* src_node);
 		void derivate(mt_mat& derivated_mat, const mt_mat& target_mat, mt_ad_mat_tree_node* target_nodes, mt_ad_tree_node* src_node);
 
 		int find_unused_derivated_mat(mt_ad_mat_tree_node* target_node);
@@ -90,5 +82,6 @@ namespace basicmath {
 		vector<mt_ad_tree_node*> m_nodes;
 		b8 m_computed_flag;
 		b8 m_enable_math_operation;
+		i32 m_max_cache_size;
 	};
 }

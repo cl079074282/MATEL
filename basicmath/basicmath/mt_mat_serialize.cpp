@@ -20,8 +20,6 @@ namespace basicmath {
 
 			ptr_mat_dim0 += mat.step()[0];
 		}
-
-		str<<L"\n";
 	}
 
 	template<class T>
@@ -91,8 +89,6 @@ namespace basicmath {
 	}
 
 	void write(sys_strcombine& str, const mt_mat& mat) {
-		str<<L"\n";
-
 		wstring depth_channel_str = wstring(L", depth_channel: ") + mt_mat_helper::depth_channel_str(mat.depth_channel()) + L":\n";
 
 		if (1 == mat.dim()) {

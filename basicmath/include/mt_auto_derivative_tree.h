@@ -14,6 +14,7 @@ namespace basicmath {
 		mt_Operation_Type_Subtract,
 		mt_Operation_Type_Pow,
 		mt_Operation_Type_Exp,
+		mt_Operation_Type_Log,
 
 
 
@@ -29,6 +30,8 @@ namespace basicmath {
 		mt_Operation_Type_Loss,
 	};
 
+	static const i32 mt_Auto_Derivative_Default_Max_Cache_Size = 30;
+
 	class mt_ad_mat_tree_node;
 
 	class mt_ad_tree_node {
@@ -39,7 +42,7 @@ namespace basicmath {
 		virtual b8 match(const mt_mat& other) const = 0;
 		virtual b8 related(const mt_mat& other) const = 0;
 
-		virtual void derivate_child(mt_ad_mat_tree_node* child_node) = 0;
+		virtual void derivate_child(mt_ad_mat_tree_node* child_node, const mt_mat& src) = 0;
 		virtual mt_ad_mat_tree_node* to_mat_tree_node() {return NULL;}
 
 		vector<mt_ad_tree_node*> m_childs;
@@ -48,7 +51,7 @@ namespace basicmath {
 	class mt_ad_const_leaf_tree_node : public mt_ad_tree_node {
 	public:
 
-		mt_ad_const_leaf_tree_node(const vector<double>& const_value) {
+		mt_ad_const_leaf_tree_node(const vector<f64>& const_value) {
 			m_values = const_value;
 		}
 
@@ -64,13 +67,17 @@ namespace basicmath {
 			 return sys_false;
 		 }
 
-		void derivate_child(mt_ad_mat_tree_node* child_node) {}
+		void derivate_child(mt_ad_mat_tree_node* child_node, const mt_mat& src) {}
 
-		vector<double> m_values;
+		vector<f64> m_values;
 	};
 
 	class mt_ad_mat_tree_node : public mt_ad_tree_node {
 	public:
+
+		mt_ad_mat_tree_node(i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+			m_max_cache_size = max_cache_size;
+		}
 
 		b8 match(const mt_mat& other) const {
 			return m_mat.is_same(other);
@@ -84,35 +91,60 @@ namespace basicmath {
 			return this;
 		}
 
-		void derivate_child(mt_ad_mat_tree_node* child_node) {
-			child_node->m_derivate_src_node = m_derivate_src_node;
-
-			derivate_child_on_operation(child_node);
+		void derivate_child(mt_ad_mat_tree_node* child_node, const mt_mat& src) {
+			if (child_node->derivative_res(src).is_empty()) {
+				child_node->add_derivative_res(derivate_child_on_operation(child_node, derivative_res(src)), src);
+			}
 		}
 
 		void init_construct(const mt_mat& res, mt_ad_tree_node* node) {
 			m_mat = res;
-			m_modified_number = m_mat.get_modified_number();
 
 			m_childs.push_back(node);
 		}
 
 		void init_construct(const mt_mat& res, mt_ad_tree_node* left, mt_ad_tree_node* right) {
 			m_mat = res;
-			m_modified_number = m_mat.get_modified_number();
 
 			m_childs.push_back(left);
 			m_childs.push_back(right);
 		}
 
+		void add_derivative_res(const mt_mat& derivative_res, const mt_mat& src) {
+			m_derivated_mats.push_back(derivative_res);
+			m_src_mats.push_back(src);
+
+			if ((i32)m_derivated_mats.size() > m_max_cache_size) {
+				m_derivated_mats.erase(m_derivated_mats.begin());
+				m_src_mats.erase(m_src_mats.begin());
+			}
+		}
+
+		void set_max_cache_size(i32 size) {
+			m_max_cache_size = size;
+		}
+
+		mt_mat derivative_res(const mt_mat& src) {
+			for (i32 i = 0; i < (i32)m_src_mats.size(); ++i) {
+				if (m_src_mats[i].is_same(src)) {
+					return m_derivated_mats[i];
+				}
+			}
+
+			return mt_mat();
+		}
+
 		mt_mat m_mat;
-		mt_mat m_derivated_mat;
-		mt_ad_tree_node* m_derivate_src_node;	//derivate source / derivate cur
-		int m_modified_number;
+
+		vector<mt_mat> m_derivated_mats;
+		vector<mt_mat> m_src_mats;
+		
 
 	protected:
 
-		virtual void derivate_child_on_operation(mt_ad_mat_tree_node* child_node) = 0;
+		i32 m_max_cache_size;
+
+		virtual mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) = 0;
 	};
 
 	class mt_ad_leaf_tree_node : public mt_ad_mat_tree_node {
@@ -120,8 +152,6 @@ namespace basicmath {
 
 		mt_ad_leaf_tree_node(const mt_mat& mat) {
 			m_mat = mat;
-			m_modified_number = m_mat.get_modified_number();
-
 		}
 
 		mt_Operation_Type op_type() {
@@ -130,19 +160,23 @@ namespace basicmath {
 
 	protected:
 
-		void derivate_child_on_operation(mt_ad_mat_tree_node* child_node) {}
+		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {return mt_mat();}
 	};
 
 	class mt_ad_add_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_add_tree_node(const mt_mat& add_res, mt_ad_tree_node* left, mt_ad_tree_node* right) {
+		mt_ad_add_tree_node(const mt_mat& add_res, mt_ad_tree_node* left, mt_ad_tree_node* right, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(add_res, left, right);
+
+			m_max_cache_size = max_cache_size;
 		}
 
-		mt_ad_add_tree_node(const mt_mat& res, vector<mt_ad_tree_node*>& elements) {
+		mt_ad_add_tree_node(const mt_mat& res, vector<mt_ad_tree_node*>& elements, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			m_mat = res;
 			m_childs = elements;
+
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
@@ -151,15 +185,17 @@ namespace basicmath {
 
 	protected:
 
-		void derivate_child_on_operation(mt_ad_mat_tree_node* child_node) {
-			child_node->m_derivated_mat = m_derivated_mat.clone();
+		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			return derivative_res.clone();
 		}
 	};
 
 	class mt_ad_subtract_tree_node : public mt_ad_mat_tree_node {
 	public:
-		mt_ad_subtract_tree_node(const mt_mat& res, mt_ad_tree_node* left, mt_ad_tree_node* right) {
+		mt_ad_subtract_tree_node(const mt_mat& res, mt_ad_tree_node* left, mt_ad_tree_node* right, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, left, right);
+
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
@@ -168,15 +204,17 @@ namespace basicmath {
 
 	protected:
 
-		void derivate_child_on_operation(mt_ad_mat_tree_node* child_node) {
-			child_node->m_derivated_mat = child_node->m_mat.clone();
+		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			mt_mat child_derivative = derivative_res.clone();
 
 			if (child_node == m_childs[0]) {
 			} else if (child_node == m_childs[1]) {
-				child_node->m_derivated_mat *= -1;
+				child_derivative *= -1;
 			} else {
 				basiclog_assert_message2(sys_false, L"input child_node is not in the m_childs!");
 			}
+
+			return child_derivative;
 		}
 
 	};
@@ -184,19 +222,26 @@ namespace basicmath {
 	class mt_ad_mul_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_mul_tree_node(const mt_mat& res, mt_ad_tree_node* left, mt_ad_tree_node* right) {
+		mt_ad_mul_tree_node(const mt_mat& res, mt_ad_tree_node* left, mt_ad_tree_node* right, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, left, right);
+
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
 			return mt_Operation_Type_Mul;
 		}
 
-		void derivate_child_on_operation(mt_ad_mat_tree_node* child_node) {
+	protected:
+
+		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
 			if (child_node == m_childs[0]) {
-				child_node->m_derivated_mat = m_derivated_mat.mul(m_childs[1]->to_mat_tree_node()->m_mat.t());
+				return derivative_res.mul(m_childs[1]->to_mat_tree_node()->m_mat.t());
 			} else if (child_node == m_childs[1]) {
-				child_node->m_derivated_mat = m_childs[0]->to_mat_tree_node()->m_mat.t().mul(m_derivated_mat.t());
+				return m_childs[0]->to_mat_tree_node()->m_mat.t().mul(derivative_res.t());
+			} else {
+				basiclog_assert2(sys_false);
+				return mt_mat();
 			}
 		}
 	};
@@ -204,24 +249,27 @@ namespace basicmath {
 	class mt_ad_sub_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_sub_tree_node(const mt_mat& res, mt_ad_tree_node* src, const vector<mt_range>& ranges) {
+		mt_ad_sub_tree_node(const mt_mat& res, mt_ad_tree_node* src, const vector<mt_range>& ranges, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, src);
 
 			m_ranges = ranges;
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
 			return mt_Operation_Type_Sub;
 		}
 
-		void derivate_child_on_operation(mt_ad_mat_tree_node* child_node) {
-			child_node->m_derivated_mat = mt_mat(child_node->m_mat, mt_mat::Construct_Type_Create_As_Size);
-			child_node->m_derivated_mat.set(0);
-
-			child_node->m_derivated_mat.sub(m_ranges).set(m_derivated_mat);
-		}
-
 	protected:
+
+		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			mt_mat child_derivative = mt_mat(child_node->m_mat, mt_mat::Construct_Type_Create_As_Size);
+			child_derivative.set(0);
+
+			child_derivative.sub(m_ranges).set(derivative_res);
+
+			return child_derivative;
+		}
 
 		vector<mt_range> m_ranges;
 	};
@@ -229,19 +277,22 @@ namespace basicmath {
 	class mt_ad_sub_stride_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_sub_stride_tree_node(const mt_mat& res, mt_ad_tree_node* src, const vector<i32>& strides) {
+		mt_ad_sub_stride_tree_node(const mt_mat& res, mt_ad_tree_node* src, const vector<i32>& strides, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, src);
 
 			m_strides = strides;
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
 			return mt_Operation_Type_Sub_Stride;
 		}
 
-		void derivate_child_on_operation(mt_ad_mat_tree_node* child_node);
+		
 
 	protected:
+
+		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res);
 
 		vector<i32> m_strides;
 	};
@@ -249,23 +300,26 @@ namespace basicmath {
 	class mt_ad_expand_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_expand_tree_node(const mt_mat& res, mt_ad_tree_node* src, const vector<mt_range>& ranges) {
+		mt_ad_expand_tree_node(const mt_mat& res, mt_ad_tree_node* src, const vector<mt_range>& ranges, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, src);
 
 			m_ranges = ranges;
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
 			return mt_Operation_Type_Sub;
 		}
 
-		void derivate_child_on_operation( mt_ad_mat_tree_node* child_node) {
-			child_node->m_derivated_mat = mt_mat(child_node->m_mat, mt_mat::Construct_Type_Create_As_Size);
-
-			child_node->m_derivated_mat.set(m_derivated_mat.sub(m_ranges));
-		}
-
 	protected:
+
+		mt_mat derivate_child_on_operation( mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			mt_mat child_derivative = mt_mat(child_node->m_mat, mt_mat::Construct_Type_Create_As_Size);
+
+			child_derivative.set(derivative_res.sub(m_ranges));
+
+			return child_derivative;
+		}
 
 		vector<mt_range> m_ranges;
 	};
@@ -275,7 +329,7 @@ namespace basicmath {
 	class mt_ad_conv_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_conv_tree_node(const mt_mat& res, mt_ad_tree_node* src, mt_ad_tree_node* kernel, const i32* strides) {
+		mt_ad_conv_tree_node(const mt_mat& res, mt_ad_tree_node* src, mt_ad_tree_node* kernel, const i32* strides, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			m_mat = res;
 			m_childs.push_back(src);
 			m_childs.push_back(kernel);
@@ -283,9 +337,11 @@ namespace basicmath {
 			if (strides != NULL) {
 				mt_helper::vec_from_array(m_strides, res.dim(), strides);
 			}
+
+			m_max_cache_size = max_cache_size;
 		}
 
-		mt_ad_conv_tree_node(const mt_mat& res, vector<mt_ad_tree_node*>& srcs, const vector<mt_ad_tree_node*>& kernels, const i32* strides) {
+		mt_ad_conv_tree_node(const mt_mat& res, vector<mt_ad_tree_node*>& srcs, const vector<mt_ad_tree_node*>& kernels, const i32* strides, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			m_mat = res;
 			m_childs = srcs;
 			m_childs.insert(m_childs.end(), kernels.begin(), kernels.end());
@@ -293,6 +349,8 @@ namespace basicmath {
 			if (strides != NULL) {
 				mt_helper::vec_from_array(m_strides, res.dim(), strides);
 			}
+
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
@@ -303,7 +361,7 @@ namespace basicmath {
 
 	protected:
 
-		void derivate_child_on_operation(mt_ad_mat_tree_node* child_node);
+		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res);
 
 		vector<i32> m_strides;
 	};
@@ -311,21 +369,21 @@ namespace basicmath {
 	class mt_ad_exp_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_exp_tree_node(const mt_mat& res, mt_ad_tree_node* src) {
+		mt_ad_exp_tree_node(const mt_mat& res, mt_ad_tree_node* src, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, src);
+
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
 			return mt_Operation_Type_Exp;
 		}
 
-		void derivate_child_on_operation( mt_ad_mat_tree_node* child_node) {
-			child_node->m_derivated_mat = mt_mat(child_node->m_mat, mt_mat::Construct_Type_Create_As_Size);
-
-			child_node->m_derivated_mat.set(m_derivated_mat);
-		}
-
 	protected:
+
+		mt_mat derivate_child_on_operation( mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			return m_mat * derivative_res;
+		}
 
 		vector<mt_range> m_ranges;
 	};
@@ -333,20 +391,19 @@ namespace basicmath {
 	class mt_ad_pow_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_pow_tree_node(const mt_mat& res, mt_ad_tree_node* src, f64 number) {
+		mt_ad_pow_tree_node(const mt_mat& res, mt_ad_tree_node* src, f64 number, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, src);
 
 			m_number = number;
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
 			return mt_Operation_Type_Pow;
 		}
 
-		void derivate_child_on_operation( mt_ad_mat_tree_node* child_node) {
-			child_node->m_derivated_mat = mt_mat(child_node->m_mat, mt_mat::Construct_Type_Create_As_Size);
-
-			child_node->m_derivated_mat.set(child_node->m_mat.pow(m_number - 1));
+		mt_mat derivate_child_on_operation( mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			return derivative_res * child_node->m_mat.pow(m_number - 1);
 		}
 
 	protected:
@@ -354,13 +411,37 @@ namespace basicmath {
 		f64 m_number;
 	};
 
+	class mt_ad_log_tree_node : public mt_ad_mat_tree_node {
+	public:
+
+		mt_ad_log_tree_node(const mt_mat& res, mt_ad_tree_node* src, f64 base, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+			init_construct(res, src);
+
+			m_base = base;
+			m_max_cache_size = max_cache_size;
+		}
+
+		mt_Operation_Type op_type() {
+			return mt_Operation_Type_Log;
+		}
+
+	protected:
+
+		mt_mat derivate_child_on_operation( mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res);
+
+		f64 m_base;
+	};
+
 	class mt_ad_activate_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_activate_tree_node(const mt_mat& res, mt_ad_tree_node* src, mt_Activate_Type type) {
+		mt_ad_activate_tree_node(const mt_mat& res, mt_ad_tree_node* src, mt_Activate_Type type, const vector<f64>& activated_params, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, src);
 
 			m_activate_type = type;
+			m_activated_params = activated_params;
+
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
@@ -369,20 +450,22 @@ namespace basicmath {
 
 	protected:
 
-		void derivate_child_on_operation( mt_ad_mat_tree_node* child_node);
+		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res);
 		mt_mat softmax_derivate(const mt_mat& softmax_res);
 		mt_mat relu_derivate(const mt_mat& relu_res);
 
 		mt_Activate_Type m_activate_type;
+		vector<f64> m_activated_params;
 	};
 
 	class mt_ad_loss_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_loss_tree_node(const mt_mat& res, mt_ad_tree_node* data_1, mt_ad_tree_node* data_2, mt_Loss_Type type) {
+		mt_ad_loss_tree_node(const mt_mat& res, mt_ad_tree_node* data_1, mt_ad_tree_node* data_2, mt_Loss_Type type, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, data_1, data_2);
 
 			m_loss_type = type;
+			m_max_cache_size = max_cache_size;
 		}
 
 		mt_Operation_Type op_type() {
@@ -391,7 +474,7 @@ namespace basicmath {
 
 	protected:
 
-		void derivate_child_on_operation( mt_ad_mat_tree_node* child_node);
+		mt_mat derivate_child_on_operation( mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res);
 		mt_mat softmax_derivate(const mt_mat& softmax_res);
 		mt_mat relu_derivate(const mt_mat& relu_res);
 

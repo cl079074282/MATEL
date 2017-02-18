@@ -243,6 +243,8 @@ class mt_mat {
 		b8 is_step_positive() const;
 		b8 is_step_negative() const;
 
+		b8 is_symmetrical() const;
+
 		b8 is_valid_index(const vector<basicsys::i32>& indexs) const {
 			basiclog_assert2(!indexs.empty());
 
@@ -488,7 +490,7 @@ class mt_mat {
 		mt_mat& self_activate(mt_Activate_Type type, const vector<f64>& activate_params);
 		mt_mat& self_activate(mt_Activate_Type type, i32 activate_param_size, const f64* activate_params);
 
-		void eigen(mt_mat& eigen_value, mt_mat& eigen_vectors) const;
+		void symmetry_eigen(mt_mat& eigen_value, mt_mat& eigen_vectors) const;
 
 		enum Reduce_Type {
 			Reduce_Type_Sum,

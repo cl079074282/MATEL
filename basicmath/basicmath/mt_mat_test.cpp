@@ -220,7 +220,7 @@ static void test_auto_derivative() {
 	mt_mat d = c + sub_a;
 	mt_mat e = c + d;
 
-	mt_mat derivate_c_to_a = auto_derivative.derivate(a, e);
+	mt_mat derivate_c_to_a = auto_derivative.derivate(a, c);
 
 	basiclog_info2(derivate_c_to_a);
 
@@ -427,6 +427,17 @@ static void test_at_ptr() {
 	sys_test_equal(*a.ptr<i32>(1, 0, 0), 8);
 }
 
+static void test_eigen_case(const mt_mat& src, const mt_mat& eigen_values, const mt_mat& eigen_vectors) {
+	mt_mat ev, ec;
+	src.symmetry_eigen(ev, ec);
+
+	sys_test_equal(ev, eigen_values);
+	sys_test_equal(ec, eigen_vectors);
+
+	basiclog_info2(ev);
+	basiclog_info2(ec);
+}
+
 static void test_eigen() {
 	basiclog_debug2(L"test eigen:");
 	// example from https://en.wikipedia.org/wiki/Jacobi_eigenvalue_algorithm
@@ -444,33 +455,42 @@ static void test_eigen() {
 	mt_mat result_ev = mt_mat_t<f32>(1, 4, 1).read(2585.253662, 37.101521, 1.478052, 0.166633);
 	mt_mat result_ec = mt_mat_t<f32>(4, 4, 1).read(0.0291933, -0.3287122, 0.7914113, -0.5145529, -0.1791862, 0.7419176, -0.1002286, -0.6382831, -0.5820814, 0.3704996, 0.5095764, 0.5140461, 0.7926043, 0.4519261, 0.3224201, 0.2521646);
 
-	mt_mat ev, ec;
-	a.eigen(ev, ec);
+	test_eigen_case(a, result_ev, result_ec);
 
-	sys_test_equal(ev.dim(), 2);
-	sys_test_equal(ev.depth_channel(), a.depth_channel());
-	sys_test_equal(ev.element_number(), a.size()[0]);
-	sys_test_equal(ec.dim(), 2);
-	sys_test_equal(ec.depth_channel(), a.depth_channel());
-	sys_test_equal(ec.element_number(), a.element_number());
-	sys_test_equal(ev, result_ev);
-	sys_test_equal(ec, result_ec);
+	a = mt_mat_t<f32>(3, 3, 1).read(1.0, -3.0, 3.0, 3.0, -5.0, 3.0, 6.0, -6.0, 4.0);
+	basiclog_info2(a);
+	result_ev = mt_mat_t<f32>(1, 3, 1).read(4.0, -2.0, -2.0);
 	
-	i32 n = ev.element_number();
-	basiclog_debug2(L"result:");
-	for(i32 i = 0; i < n; ++i) {
-		basiclog_debug2(sys_strcombine() << L"e" << i << L" = " << ev.at<f32>(0, i, 1));
-		sys_strcombine str;
-		str << L"v" << i  << L" = (";
-		for(i32 j = 0; j < n; ++j) {
-			str << ec.at<f32>(i, j, 1);
-			if(j != n-1) {
-				str << L", ";
-			}
-		}
-		str << L")";
-		basiclog_debug2(str);
-	}
+	//test_eigen_case(a, result_ev, result_ec);
+
+
+	//mt_mat ev, ec;
+	//a.eigen(ev, ec);
+
+	//sys_test_equal(ev.dim(), 2);
+	//sys_test_equal(ev.depth_channel(), a.depth_channel());
+	//sys_test_equal(ev.element_number(), a.size()[0]);
+	//sys_test_equal(ec.dim(), 2);
+	//sys_test_equal(ec.depth_channel(), a.depth_channel());
+	//sys_test_equal(ec.element_number(), a.element_number());
+	//sys_test_equal(ev, result_ev);
+	//sys_test_equal(ec, result_ec);
+	//
+	//i32 n = ev.element_number();
+	//basiclog_debug2(L"result:");
+	//for(i32 i = 0; i < n; ++i) {
+	//	basiclog_debug2(sys_strcombine() << L"e" << i << L" = " << ev.at<f32>(0, i, 1));
+	//	sys_strcombine str;
+	//	str << L"v" << i  << L" = (";
+	//	for(i32 j = 0; j < n; ++j) {
+	//		str << ec.at<f32>(i, j, 1);
+	//		if(j != n-1) {
+	//			str << L", ";
+	//		}
+	//	}
+	//	str << L")";
+	//	basiclog_debug2(str);
+	//}
 }
 
 void mt_mat_test::run(vector<wstring>& argvs) {

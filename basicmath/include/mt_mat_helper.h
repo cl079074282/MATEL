@@ -15,6 +15,7 @@ namespace basicmath {
 			Math_Op_Code_Pow,
 			Math_Op_Code_Exp,
 			Math_Op_Code_Log,
+			Math_Op_Code_Ln,
 		};
 
 		static wstring depth_str(int depth);
@@ -209,6 +210,9 @@ namespace basicmath {
 						break;
 					case basicmath::mt_mat_helper::Math_Op_Code_Log:
 						ptr_res[c] = (T)(log10(ptr_a[c]) / log10(b[c]));
+						break;
+					case basicmath::mt_mat_helper::Math_Op_Code_Ln:
+						ptr_res[c] = (T)log(ptr_a[c]);
 						break;
 					default:
 						basiclog_unsupport2();

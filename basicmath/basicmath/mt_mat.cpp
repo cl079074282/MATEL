@@ -1345,3 +1345,7 @@ b8 mt_mat::is_step_negative() const {
 
 	return sys_true;
 }
+
+b8 mt_mat::is_symmetrical() const {
+	return sys_true;
+}

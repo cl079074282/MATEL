@@ -338,9 +338,7 @@ namespace basicmath {
 				softmax<T>(res, src);
 			} else {
 				if (type == mt_Activate_Type_Linear) {
-					if (&res != &src) {
-						res.set(src);
-					}
+					res.set(src);
 				} else {
 					switch (type) {
 					case mt_Activate_Type_Relu:
@@ -467,25 +465,26 @@ namespace basicmath {
 		}
 
 		template<class T>
-		static void eigen(mt_mat& eigen_value, mt_mat& eigen_vector, const mt_mat& mat) {
+		static void symmetry_eigen(mt_mat& eigen_value, mt_mat& eigen_vector, mt_mat& mat) {
 			T eps = (T)0;
 			if (typeid(T) == typeid(f32)) {
-				eps = (T)mt_helper::get_float_eps() * 100;
+				eps = (T)mt_helper::get_float_eps();
 			} else if (typeid(T) == typeid(f64)) {
-				eps = (T)mt_helper::get_double_eps() * 100;
+				eps = (T)mt_helper::get_double_eps();
 			} else {
 				basiclog_unsupport2();
 				return;
 			}
 
-			basiclog_debug2(sys_strhelper::combine(L"esplion: %f", eps));
+			basiclog_debug2(sys_strcombine()<<L"esplion: "<<eps);
 
 			i32 n = mat.size()[0];
-			vector<i32> buffer(n * 2, 0);
-			eigen_value = mt_mat(1, n, mat.depth_channel());
-			eigen_vector = mt_mat(n, n, mat.depth_channel());
+			
+			eigen_value = mt_mat(1, mat.size()[0], mat.depth_channel());
+			eigen_vector = mt_mat(mat.size()[0], mat.size()[0], mat.depth_channel());
 
-			jacobi((T*)mat.data(), mat.step()[0], n, (T*)eigen_value.data(), (T*)eigen_vector.data(), (i8*)buffer.data(), eps);
+			//jacobi((T*)mat.data(), mat.step()[0], n, (T*)eigen_value.data(), (T*)eigen_vector.data(), (i8*)buffer.data(), eps);
+			jacobi(eigen_value, eigen_vector, mat, eps);
 		}
 
 		template<typename T> 
@@ -503,9 +502,19 @@ namespace basicmath {
 			return 0;
 		}
 
+		//static void jacobi(T* mat, i32 step, i32 n, T* ev, T* ec, i8* buf, T eps) {
 		template<typename T> 
-		static void jacobi(T* mat, i32 step, i32 n, T* ev, T* ec, i8* buf, T eps) {
-			//
+		static void jacobi(mt_mat& eigen_value, mt_mat& eigen_vector, mt_mat& src_mat, T eps) {
+			T* mat = (T*)src_mat.data();
+			i32 step = src_mat.step()[0];
+
+			T* ev = (T*)eigen_value.data();
+			T* ec = (T*)eigen_vector.data();
+
+			vector<i32> buf_vector(2 * src_mat.size()[0]);
+			i8* buf = (i8*)&buf_vector[0];
+			i32 n = src_mat.size()[0];
+
 			i32 i, j, k, m;
 
 			step /= sizeof(mat[0]);
@@ -550,22 +559,24 @@ namespace basicmath {
 			if (n > 1) {
 				for (iters = 0; iters < max_iters; iters++) {
 					// log eigen values and eigen vectors of each iteration
-					if(basiclog::log_logger::get_logger() != NULL && basiclog::log_logger::get_logger()->is_enable_debug()) {
-						basiclog_debug2(sys_strcombine() << L"iteration " << iters << L" :");
-						for(i32 i = 0; i < n; ++i) {
-							basiclog_debug2(sys_strcombine() << L"e" << i << L" = " << ev[i]);
-							sys_strcombine str;
-							str << L"v" << i << L" = (";
-							for(j = 0; j < n; ++j) {
-								str << ec[step * i + j];
-								if(j != n - 1) {
-									str << L", ";
-								}
-							}
-							str << L")";
-							basiclog_debug2(str);
-						}
-					}
+					//if(basiclog::log_logger::get_logger() != NULL && basiclog::log_logger::get_logger()->is_enable_debug()) {
+					//	basiclog_debug2(sys_strcombine() << L"iteration " << iters << L" :");
+					//	for(i32 i = 0; i < n; ++i) {
+					//		basiclog_debug2(sys_strcombine() << L"e" << i << L" = " << ev[i]);
+					//		sys_strcombine str;
+					//		str << L"v" << i << L" = (";
+					//		for(j = 0; j < n; ++j) {
+					//			str << ec[step * i + j];
+					//			if(j != n - 1) {
+					//				str << L", ";
+					//			}
+					//		}
+					//		str << L")";
+					//		basiclog_debug2(str);
+					//	}
+					//}
+
+					basiclog_debug2(sys_strcombine()<<L"iteration "<<iters<<L"\n"<<L"eigen values "<<eigen_value<<L"\neigen vectors "<<eigen_vector);
 					
 					// find index (k,l) of pivot p
 					for (k = 0, mv = std::fabs(mat[indr[0]]), i = 1; i < n - 1; i++) {
@@ -1491,11 +1502,16 @@ mt_mat& mt_mat::self_exp() {
 }
 
 mt_mat& mt_mat::self_log(double base) {
-	vector<f64> params;
-	params.push_back(base);
-
 	on_vaule_changed();
-	mt_mat_helper::mat_operation(*this, params, *this, mt_mat_helper::Math_Op_Code_Exp);
+
+	if (mt_helper::compare_double(base, mt_E) == 0) {
+		mt_mat_helper::mat_operation(*this, vector<f64>(), *this, mt_mat_helper::Math_Op_Code_Ln);
+	} else {
+		vector<f64> params;
+		params.push_back(base);
+
+		mt_mat_helper::mat_operation(*this, params, *this, mt_mat_helper::Math_Op_Code_Log);
+	}
 
 	return *this;
 }
@@ -1532,10 +1548,14 @@ mt_mat mt_mat::exp() const {
 mt_mat mt_mat::log(double base /* = mt_E */) const {
 	mt_mat res(*this, mt_mat::Construct_Type_Create_As_Size);
 
-	vector<f64> params;
-	params.push_back(base);
+	if (mt_helper::compare_double(base, mt_E) == 0) {
+		mt_mat_helper::mat_operation(res, vector<f64>(), *this, mt_mat_helper::Math_Op_Code_Ln);
+	} else {
+		vector<f64> params;
+		params.push_back(base);
 
-	mt_mat_helper::mat_operation(res, params, *this, mt_mat_helper::Math_Op_Code_Log);
+		mt_mat_helper::mat_operation(res, params, *this, mt_mat_helper::Math_Op_Code_Log);
+	}
 
 	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.attach(m_auto_derivative);
@@ -1545,19 +1565,14 @@ mt_mat mt_mat::log(double base /* = mt_E */) const {
 	return res;
 }
 
-void mt_mat::eigen(mt_mat& eigen_value, mt_mat& eigen_vector) const {
+void mt_mat::symmetry_eigen(mt_mat& eigen_value, mt_mat& eigen_vector) const {
 	basiclog_assert2(dim() == 2);
 	basiclog_assert2(depth_channel() == mt_F32C1 || depth_channel() == mt_F64C1);
 
-	if ((!is_min_abs_step_equal_element_size()) || is_step_negative() || step()[0] < step()[1]) {
-		clone().eigen(eigen_value, eigen_vector);
-		return;
-	}
-
 	if (depth() == mt_F32) {
-		private_math_operation::eigen<f32>(eigen_value, eigen_vector, *this);
+		private_math_operation::symmetry_eigen<f32>(eigen_value, eigen_vector, clone());
 	} else {
-		private_math_operation::eigen<f64>(eigen_value, eigen_vector, *this);
+		private_math_operation::symmetry_eigen<f64>(eigen_value, eigen_vector, clone());
 	}
 }
 
