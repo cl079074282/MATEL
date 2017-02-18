@@ -1,0 +1,7 @@
+\[\begin{array}{l}
+\frac{{\partial J}}{{\partial {w^l}}} \approx \frac{1}{{nb}}\sum\limits_{i = 0}^{nb - 1} {\frac{{\partial J{S^{*i}}}}{{\partial {w^l}}}} \\
+ = \frac{1}{{nb}}\sum\limits_{i = 0}^{nb - 1} {{{\left( {{o_{i\_}}^{*l}} \right)}^t}{\delta _{i\_}}^{*l + 1}} \\
+ = \frac{1}{{nb}}{\left( {{o^{*l}}} \right)^t}{\delta ^{*l + 1}}\\
+\Delta w =  - \frac{{\partial J}}{{\partial {w^l}}}\\
+w \leftarrow w + \Delta w
+\end{array}\]

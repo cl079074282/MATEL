@@ -1,0 +1,1 @@
+\[h\left( x \right) = (f \odot k)\left( x \right) = \int_{ - \infty }^\infty  {f(x + t)k(t)dt = } \int_{ - \infty }^\infty  {f(t)k(x + t)dt} \]

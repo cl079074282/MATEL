@@ -1,0 +1,8 @@
+\[\begin{array}{l}
+{\left( {{x^{180}} \otimes k} \right)^{180}} = {y^{180}}\left( {i,j} \right) = y\left( {{i^'},{j^'}} \right)\\
+ = y\left( {{y_{*h}} - 1 - i,{y_{*w}} - 1 - j} \right)\\
+ = \sum\limits_{m,n} {x({x_{*h}} - 1 - {i^'} + m,{x_{*w}} - 1 - {j^'} + n)k(m,n)} \\
+ = \sum\limits_{m,n} {x({x_{*h}} - 1 - \left( {{y_{*h}} - 1 - i} \right) + m,{x_{*w}} - 1 - \left( {{y_{*w}} - 1 - j} \right) + n)k(m,n)} \\
+ = \sum\limits_{m,n} {x(i - {k_{*h}} + 1 + m,j - {k_{*w}} + 1 + n)k(m,n)} \\
+ = x \odot k
+\end{array}\]

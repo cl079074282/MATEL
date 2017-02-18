@@ -1,0 +1,21 @@
+\[\begin{array}{l}
+{\left( {{{\hat s}^{*l + 1}}} \right)^{*i}} = \frac{{{o^{*l}} - E\left( {\left( {{o^{*l}}} \right)} \right)}}{{\sqrt {{\mathop{\rm var}} \left( {{o^{*l}}} \right) + \varepsilon } }}\\
+{\left( {{s^{*l + 1}}} \right)^{*i}} = {\gamma ^{*l + 1}}{\left( {{{\hat s}^{*l + 1}}} \right)^{*i}} + \beta \\
+\\
+\frac{{\partial J}}{{\partial {{\left( {{o^{*l}}} \right)}^{*i}}}} = \frac{{\partial J}}{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*i}}}}\frac{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*i}}}}{{\partial {{\left( {{o^{*l}}} \right)}^{*i}}}} + \frac{{\partial J}}{{\partial E\left( {{o^{*l}}} \right)}}\frac{{\partial E\left( {{o^{*l}}} \right)}}{{\partial {{\left( {{o^{*l}}} \right)}^{*i}}}} + \frac{{\partial J}}{{\partial D\left( {{o^{*l}}} \right)}}\frac{{\partial D\left( {{o^{*l}}} \right)}}{{\partial {{\left( {{o^{*l}}} \right)}^{*i}}}}\\
+\frac{{\partial J}}{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*\hat i}}}} = \frac{{\partial J}}{{\partial {{\left( {{s^{*l + 1}}} \right)}^{*i}}}} \cdot \frac{{\partial {{\left( {{s^{*l + 1}}} \right)}^{*i}}}}{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*i}}}}\\
+\frac{{\partial J}}{{\partial E\left( {{o^{*l}}} \right)}} = \sum\limits_{\hat i = 0}^{m - 1} {\frac{{\partial J}}{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*\hat i}}}} \cdot \frac{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*\hat i}}}}{{\partial E\left( {{o^{*l}}} \right)}}}  + \frac{{\partial J}}{{\partial D\left( {{o^{*l}}} \right)}} \cdot \frac{{\partial D\left( {{o^{*l}}} \right)}}{{\partial E\left( {{o^{*l}}} \right)}}\\
+\frac{{\partial E\left( {{o^{*l}}} \right)}}{{\partial {{\left( {{o^{*l}}} \right)}^{*i}}}} = \frac{1}{m}\\
+\frac{{\partial J}}{{\partial D\left( {{o^{*l}}} \right)}} = \sum\limits_{\hat i = 0}^{m - 1} {\frac{{\partial J}}{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*\hat i}}}} \cdot \frac{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*\hat i}}}}{{\partial D\left( {{o^{*l}}} \right)}}} \\
+\frac{{\partial D\left( {{o^{*l}}} \right)}}{{\partial {{\left( {{o^{*l}}} \right)}^{*i}}}} = \frac{2}{m}\left( {{{\left( {{o^{*l}}} \right)}^{*i}} - E\left( {{o^{*l}}} \right)} \right)\\
+\frac{{\partial D\left( {{o^{*l}}} \right)}}{{\partial E\left( {{o^{*l}}} \right)}} = \frac{{ - 2}}{m}\sum\limits_{i = 0}^{m - 1} {\left( {{{\left( {{o^{*l}}} \right)}^{*\hat i}} - E\left( {{o^{*l}}} \right)} \right)}  =  - \sum\limits_{i = 0}^{m - 1} {\frac{{\partial D\left( {{o^{*l}}} \right)}}{{\partial {{\left( {{o^{*l}}} \right)}^{*i}}}}} \\
+\\
+\frac{{\partial J}}{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*\hat i}}}} = {\left( {{\delta ^{*l + 1}}} \right)^{*i}}{\gamma ^{*l + 1}}\\
+\frac{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*i}}}}{{\partial {{\left( {{o^{*l}}} \right)}^{*i}}}} = \frac{1}{{\sqrt {D\left( {{o^{*l}}} \right) + \varepsilon } }}\\
+\frac{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*\hat i}}}}{{\partial E\left( {{o^{*l}}} \right)}} = \frac{{ - 1}}{{\sqrt {D\left( {{o^{*l}}} \right) + \varepsilon } }}\\
+\frac{{\partial {{\left( {{{\hat s}^{*l + 1}}} \right)}^{*i}}}}{{\partial D\left( {{o^{*l}}} \right)}} = \left( {{{\left( {{o^{*l}}} \right)}^{*i}} - E\left( {{o^{*l}}} \right)} \right) \cdot \frac{{ - 1}}{2}{\left( {D\left( {{o^{*l}}} \right) + \varepsilon } \right)^{\frac{{ - 3}}{2}}}\\
+\frac{{\partial J}}{{\partial {\gamma ^{*l}}}} = \sum\limits_{\hat i = 0}^{m - 1} {\frac{{\partial J}}{{\partial {{\left( {{{\hat s}^{*l}}} \right)}^{*\hat i}}}} \cdot \frac{{\partial {{\left( {{{\hat s}^{*l}}} \right)}^{*\hat i}}}}{{\partial {\gamma ^{*l}}}}} \\
+ = \sum\limits_{\hat i = 0}^{m - 1} {{{\left( {{\delta ^{*l}}} \right)}^{*\hat i}} \cdot {{\left( {{{\hat s}^{*l}}} \right)}^{*\hat i}}} \\
+\frac{{\partial J}}{{\partial \beta }} = \sum\limits_{\hat i = 0}^{m - 1} {\frac{{\partial J}}{{\partial {{\left( {{{\hat s}^{*l}}} \right)}^{*\hat i}}}}} \\
+ = \sum\limits_{\hat i = 0}^{m - 1} {{{\left( {{\delta ^{*l}}} \right)}^{*\hat i}}} 
+\end{array}\]

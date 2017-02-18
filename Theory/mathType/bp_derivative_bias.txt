@@ -1,0 +1,6 @@
+\[\begin{array}{l}
+\frac{{\partial JS}}{{\partial {b^{*l}}_j}} = \frac{{\partial JS}}{{\partial {s^{*l}}_j}}\frac{{\partial {s^{*l}}_j}}{{\partial {b^{*l}}_j}}\\
+ = \frac{{\partial JS}}{{\partial {s^{*l}}_j}}\frac{{\partial {s^{*l}}_j}}{{\partial {b^{*l}}_j}}\\
+ = {\delta ^{*l}}_j\\
+ \Rightarrow \frac{{\partial JS}}{{\partial {b^{*l}}}} = {\delta ^{*l}}
+\end{array}\]

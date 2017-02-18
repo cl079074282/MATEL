@@ -1,0 +1,7 @@
+\[\begin{array}{l}
+o\_ou{t_j}^{*t} = f\_out\left( {\sum\limits_u {w\_ou{t_{ju}}{o_j}^{*t - 1} + b\_ou{t_j}} } \right)\\
+o\_i{n_j}^{*t} = f\_in\left( {\sum\limits_u {w\_i{n_{ju}}{o_j}^{*t - 1} + b\_i{n_j}} } \right)\\
+o\_cel{l_j}^{*t} = o\_ou{t_j}^{*t}h\left( {s\_cel{l_j}^{*t}} \right)\\
+s\_cel{l_j}^{*0} = 0\\
+s\_cel{l_j}^{*t} = s\_cel{l_j}^{*t - 1} + o\_i{n_j}^{*t}g\left( {\sum\limits_u {w\_cel{l_{ju}}{o_j}^{*t - 1} + b\_cel{l_j}} } \right)
+\end{array}\]
