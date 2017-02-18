@@ -31,6 +31,14 @@ b8 mt_helper::is_number(f64 val) {
 	return !is_nan(val) && !is_infinity(val);
 }
 
+f64 mt_helper::e64() {
+	return exp(1);
+}
+
+f32 mt_helper::e32() {
+	return expf(1.0);
+}
+
 i8 mt_helper::max_i8() {
 	return 127;
 }

@@ -375,4 +375,26 @@ namespace basicmath {
 
 		mt_Activate_Type m_activate_type;
 	};
+
+	class mt_ad_loss_tree_node : public mt_ad_mat_tree_node {
+	public:
+
+		mt_ad_loss_tree_node(const mt_mat& res, mt_ad_tree_node* data_1, mt_ad_tree_node* data_2, mt_Loss_Type type) {
+			init_construct(res, data_1, data_2);
+
+			m_loss_type = type;
+		}
+
+		mt_Operation_Type op_type() {
+			return mt_Operation_Type_Activate;
+		}
+
+	protected:
+
+		void derivate_child_on_operation( mt_ad_mat_tree_node* child_node);
+		mt_mat softmax_derivate(const mt_mat& softmax_res);
+		mt_mat relu_derivate(const mt_mat& relu_res);
+
+		mt_Loss_Type m_loss_type;
+	};
 }

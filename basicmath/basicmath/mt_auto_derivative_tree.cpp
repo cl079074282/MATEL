@@ -135,3 +135,31 @@ mt_mat mt_ad_activate_tree_node::relu_derivate(const mt_mat& softmax_res) {
 		return mt_mat();
 	}
 }
+
+void mt_ad_loss_tree_node::derivate_child_on_operation(mt_ad_mat_tree_node* child_node) {
+
+
+	switch (m_loss_type) {
+	case mt_Loss_Type_0_1:
+		child_node->m_derivated_mat = m_derivated_mat.clone();
+		break;
+	case mt_Loss_Type_Logarithmic:
+		
+		if (child_node == m_childs[0]) {
+			child_node->m_derivated_mat = m_derivated_mat * ((m_childs[0]->to_mat_tree_node()->m_mat - m_childs[1]->to_mat_tree_node()->m_mat) / (m_childs[0]->to_mat_tree_node()->m_mat * (1 - m_childs[0]->to_mat_tree_node()->m_mat)));
+		} else {
+			child_node->m_derivated_mat = m_derivated_mat * (m_childs[0]->to_mat_tree_node()->m_mat.self_log() - (1 - m_childs[0]->to_mat_tree_node()->m_mat).self_log());
+		}
+
+		break;
+	case mt_Loss_Type_Quadratic:
+		
+		if (child_node == m_childs[0]) {
+			child_node->m_derivated_mat = m_derivated_mat * (m_childs[0]->to_mat_tree_node()->m_mat - m_childs[1]->to_mat_tree_node()->m_mat);
+		} else {
+			child_node->m_derivated_mat = m_derivated_mat * (m_childs[1]->to_mat_tree_node()->m_mat - m_childs[0]->to_mat_tree_node()->m_mat);
+		}
+
+		break;
+	}
+}

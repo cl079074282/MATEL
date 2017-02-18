@@ -459,6 +459,8 @@ namespace basicmath {
 				return quardratic_loss<T>(src, matching_mat);
 			case mt_Loss_Type_Logarithmic:
 				return logarithmic_loss<T>(src, matching_mat);
+			case mt_Loss_Type_0_1:
+				return mt_mat();
 			default:
 				return mt_mat();
 			}

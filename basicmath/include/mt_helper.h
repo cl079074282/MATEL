@@ -28,6 +28,9 @@ namespace basicmath {
 		static b8 is_infinity(f64 val);
 		static b8 is_number(f64 val);
 
+		static f64 e64();
+		static f32 e32();
+
 		static i8 max_i8();
 		static i8 min_i8();
 
