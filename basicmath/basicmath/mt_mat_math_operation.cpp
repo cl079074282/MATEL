@@ -484,8 +484,9 @@ namespace basicmath {
 			vector<i32> buffer(n * 2, 0);
 			eigen_value = mt_mat(1, n, mat.depth_channel());
 			eigen_vector = mt_mat(n, n, mat.depth_channel());
+			mt_mat tmp_mat = mat.clone();
 
-			jacobi((T*)mat.data(), mat.step()[0], n, (T*)eigen_value.data(), (T*)eigen_vector.data(), (i8*)buffer.data(), eps);
+			jacobi((T*)tmp_mat.data(), mat.step()[0], n, (T*)eigen_value.data(), (T*)eigen_vector.data(), (i8*)buffer.data(), eps);
 		}
 
 		template<typename T> 
