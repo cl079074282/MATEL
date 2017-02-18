@@ -482,6 +482,7 @@ namespace basicmath {
 			
 			eigen_value = mt_mat(1, mat.size()[0], mat.depth_channel());
 			eigen_vector = mt_mat(mat.size()[0], mat.size()[0], mat.depth_channel());
+			mt_mat tmp_mat = mat.clone();
 
 			//jacobi((T*)mat.data(), mat.step()[0], n, (T*)eigen_value.data(), (T*)eigen_vector.data(), (i8*)buffer.data(), eps);
 			jacobi(eigen_value, eigen_vector, mat, eps);
