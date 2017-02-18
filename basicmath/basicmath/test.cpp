@@ -9,7 +9,7 @@ int main() {
 	vector<wstring> argvs;
 	mt_mat_test().run(argvs);
 
-	f32 val = -(f32)mt_helper::infinity();
+	f32 val = -(f32)mt_Infinity;
 
 	if (val < 0 && mt_helper::is_infinity(val)) {
 		basiclog_info2(L"haha");

@@ -332,7 +332,7 @@ mt_mat ml_helper::align_sequence_data(const mt_mat& seuqnce_fixed_data, const mt
 		dst_sizes[i] = seuqnce_fixed_data.size()[1];
 	}
 
-	mt_mat dst(seuqnce_fixed_data.dim(), dst_sizes, seuqnce_fixed_data.depth_channel(), mt_scalar(mt_helper::infinity()));
+	mt_mat dst(seuqnce_fixed_data.dim(), dst_sizes, seuqnce_fixed_data.depth_channel(), mt_scalar(mt_Infinity));
 
 	for (i32 i = 0; i < (i32)ranges.size(); ++i) {
 		dst.sub(ranges[i]).set(seuqnce_fixed_data.sub(mt_range(i * fixed_sequence_length, i * fixed_sequence_length + ranges[i].size())));

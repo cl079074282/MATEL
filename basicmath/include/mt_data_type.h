@@ -1,5 +1,7 @@
 #pragma once
 
+#include <limits>
+
 namespace basicmath {
 	enum mt_Depth {
 		mt_U8,
@@ -95,6 +97,13 @@ namespace basicmath {
 	};
 
 	static const f64 mt_PI = 3.1415926535898;
+	static const f64 mt_E = exp(1);
+	static const f64 mt_Nan = std::numeric_limits<f64>::quiet_NaN();
+	static const f64 mt_Infinity = std::numeric_limits<f64>::infinity();
+	static const i8 mt_S8_Max = 127;
+	static const i8 mt_S8_Min = -128;
+	static const u8 mt_U8_Max = 255;
+	static const u8 mt_U8_Min = 0;
 
 	enum mt_Activate_Type {
 		mt_Activate_Type_Sigmoid,

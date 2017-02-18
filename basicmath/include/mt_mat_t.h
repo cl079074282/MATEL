@@ -94,7 +94,7 @@ namespace basicmath {
 			return res;
 		}
 
-		mt_mat read(T value, ...) {
+		mt_mat read(double value, ...) {
 			mt_array_element_iterator iter(m_mat);
 
 			va_list arg;
@@ -111,7 +111,7 @@ namespace basicmath {
 
 				for (int c = 0; c < m_mat.channel(); ++c) {
 					if (first) {
-						ptr_src[c] = value;
+						ptr_src[c] = (T)value;
 						first = false;
 					} else {
 						if (typeid(T) == typeid(float)) {

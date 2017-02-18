@@ -143,13 +143,19 @@ void mt_auto_derivative::activate(const mt_mat& res, const mt_mat& src, mt_Activ
 	check_res_mat(res);
 }
 
-void mt_auto_derivative::pow(const mt_mat& res, const mt_mat& src, f64 number) {
-
-}
 
 void mt_auto_derivative::exp(const mt_mat& res, const mt_mat& src) {
 
 }
+
+void mt_auto_derivative::pow(const mt_mat& res, const mt_mat& src, f64 number) {
+
+}
+
+void mt_auto_derivative::log(const mt_mat& res, const mt_mat& src, f64 base) {
+
+}
+
 
 void mt_auto_derivative::record_math_operation(b8 enable) {
 	m_enable_math_operation = enable;

@@ -449,8 +449,8 @@ class mt_mat {
 		mt_mat exp() const;
 		mt_mat& self_exp();
 
-		mt_mat log(double base = mt_helper::e64()) const;
-		mt_mat& self_log(double base = mt_helper::e64()) const;
+		mt_mat log(double base = mt_E) const;
+		mt_mat& self_log(double base = mt_E);
 
 		mt_mat pooling(mt_mat& mask_mat, mt_Pooling_Type pooling_type, i32 size, const basicsys::i32* kernel_sizes, const basicsys::i32* strides) const;
 		mt_mat unpooling(const int* src_size, const mt_mat& mask_mat, mt_Pooling_Type pooling_type, i32 size, const int* kernel_sizes, const int* strides) const;

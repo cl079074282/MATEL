@@ -20,22 +20,10 @@ namespace basicmath {
 
 			return false;
 		}
-
-		static f64 nan();
-		static f64 infinity();
 		
 		static b8 is_nan(f64 val);
 		static b8 is_infinity(f64 val);
 		static b8 is_number(f64 val);
-
-		static f64 e64();
-		static f32 e32();
-
-		static i8 max_i8();
-		static i8 min_i8();
-
-		static u8 max_u8();
-		static u8 min_u8();
 
 		template<class T>
 		static b8 valid_range(f64 value) {
@@ -43,9 +31,9 @@ namespace basicmath {
 				return sys_true;
 			} else {
 				if (typeid(T) == typeid(i8)) {
-					return value <= max_i8() && value >= min_i8();
+					return value <= mt_S8_Max && value >= mt_S8_Min;
 				} else if (typeid(T) == typeid(u8)) {
-					return value <= max_u8() && value >= min_u8();
+					return value <= mt_U8_Max && value >= mt_U8_Min;
 				}
 
 				return sys_true;

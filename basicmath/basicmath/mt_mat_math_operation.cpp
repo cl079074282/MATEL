@@ -1033,6 +1033,8 @@ mt_mat mt_mat::operator-(const mt_mat& value) const {
 
 		m_auto_derivative->subtract(res, *this, value);
 	}
+
+	return res;
 }
 
 mt_mat mt_mat::operator*(double value) const {
@@ -1121,6 +1123,8 @@ mt_mat mt_mat::operator/(const mt_mat& value) const {
 
 		m_auto_derivative->subtract(res, *this, value);
 	}
+
+	return res;
 }
 
 mt_mat mt_mat::mul(const mt_mat& value) const {
@@ -1469,6 +1473,8 @@ mt_mat mt_mat::loss(const mt_mat& matching_mat, mt_Loss_Type type) const {
 }
 
 mt_mat& mt_mat::self_pow(f64 number) {
+	on_vaule_changed();
+
 	vector<f64> params;
 	params.push_back(number);
 
@@ -1480,6 +1486,16 @@ mt_mat& mt_mat::self_pow(f64 number) {
 mt_mat& mt_mat::self_exp() {
 	on_vaule_changed();
 	mt_mat_helper::mat_operation(*this, vector<f64>(), *this, mt_mat_helper::Math_Op_Code_Exp);
+
+	return *this;
+}
+
+mt_mat& mt_mat::self_log(double base) {
+	vector<f64> params;
+	params.push_back(base);
+
+	on_vaule_changed();
+	mt_mat_helper::mat_operation(*this, params, *this, mt_mat_helper::Math_Op_Code_Exp);
 
 	return *this;
 }
@@ -1508,6 +1524,22 @@ mt_mat mt_mat::exp() const {
 	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.attach(m_auto_derivative);
 		m_auto_derivative->exp(res, *this);
+	}
+
+	return res;
+}
+
+mt_mat mt_mat::log(double base /* = mt_E */) const {
+	mt_mat res(*this, mt_mat::Construct_Type_Create_As_Size);
+
+	vector<f64> params;
+	params.push_back(base);
+
+	mt_mat_helper::mat_operation(res, params, *this, mt_mat_helper::Math_Op_Code_Log);
+
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
+		res.attach(m_auto_derivative);
+		m_auto_derivative->log(res, *this, base);
 	}
 
 	return res;

@@ -83,7 +83,7 @@ void ml_data::response(map<wstring, mt_mat>& features, const vector<mt_range>& r
 				sub_mats[i] = iter->second.m_mat.sub(ranges[i]);
 				expand_sizes[0] = suggest_sequence_length - ranges[i].size();
 				expand_sizes[1] = sub_mats[i].size()[1];
-				sub_mats[i] = sub_mats[i].expand(2, NULL, expand_sizes, mt_helper::nan());
+				sub_mats[i] = sub_mats[i].expand(2, NULL, expand_sizes, mt_Nan);
 			}
 
 			features[iter->first] = mt_mat_helper::merge_align_dim(sub_mats, 0);

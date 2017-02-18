@@ -54,6 +54,7 @@ namespace basicmath {
 
 		void exp(const mt_mat& res, const mt_mat& src);
 		void pow(const mt_mat& res, const mt_mat& src, f64 number);
+		void log(const mt_mat& res, const mt_mat& src, f64 base);
 
 		/**
 		@param enable = sys_true indicates the auto_derivative instance will record the math operation in the derivative tree.

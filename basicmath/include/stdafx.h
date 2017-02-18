@@ -36,9 +36,10 @@ using namespace basicmath;
 #include "mt_point_t.h"
 #include "mt_size_t.h"
 #include "mt_rect_t.h"
+#include "mt_helper.h"
 #include "mt_mat.h"
 #include "mt_mat_t.h"
-#include "mt_helper.h"
+
 #include "mt_mat_helper.h"
 #include "mt_array_iteration.h"
 
