@@ -440,9 +440,9 @@ static void test_eigen() {
 	// e4 = 0.166633
 	// v3 = (0.7926043, 0.4519261, 0.3224201, 0.2521646)
 
-	mt_mat a = mt_mat_t<f32>(4, 4, 1).read(4.0, -30.0, 60.0, -35.0, -30.0, 300.0, -675.0, 420.0, 60.0, -675.0, 1620.0, -1050.0, -35.0, 420.0, -1050.0, 700.0);
-	mt_mat result_ev = mt_mat_t<f32>(1, 4, 1).read(2585.253662, 37.101521, 1.478052, 0.166633);
-	mt_mat result_ec = mt_mat_t<f32>(4, 4, 1).read(0.0291933, -0.3287122, 0.7914113, -0.5145529, -0.1791862, 0.7419176, -0.1002286, -0.6382831, -0.5820814, 0.3704996, 0.5095764, 0.5140461, 0.7926043, 0.4519261, 0.3224201, 0.2521646);
+	mt_mat a = mt_mat_t<f32>(4, 4, 1).read(4.0f, -30.0, 60.0, -35.0, -30.0, 300.0, -675.0, 420.0, 60.0, -675.0, 1620.0, -1050.0, -35.0, 420.0, -1050.0, 700.0);
+	mt_mat result_ev = mt_mat_t<f32>(1, 4, 1).read(2585.253662f, 37.101521, 1.478052, 0.166633);
+	mt_mat result_ec = mt_mat_t<f32>(4, 4, 1).read(0.0291933f, -0.3287122, 0.7914113, -0.5145529, -0.1791862, 0.7419176, -0.1002286, -0.6382831, -0.5820814, 0.3704996, 0.5095764, 0.5140461, 0.7926043, 0.4519261, 0.3224201, 0.2521646);
 
 	mt_mat ev, ec;
 	a.eigen(ev, ec);
@@ -456,21 +456,8 @@ static void test_eigen() {
 	sys_test_equal(ev, result_ev);
 	sys_test_equal(ec, result_ec);
 	
-	i32 n = ev.element_number();
-	basiclog_debug2(L"result:");
-	for(i32 i = 0; i < n; ++i) {
-		basiclog_debug2(sys_strcombine() << L"e" << i << L" = " << ev.at<f32>(0, i, 1));
-		sys_strcombine str;
-		str << L"v" << i  << L" = (";
-		for(i32 j = 0; j < n; ++j) {
-			str << ec.at<f32>(i, j, 1);
-			if(j != n-1) {
-				str << L", ";
-			}
-		}
-		str << L")";
-		basiclog_debug2(str);
-	}
+	basiclog_debug2(L"\nresult eigen values: " << ev);
+	basiclog_debug2(L"\nresult eigen vectors: " << ec);
 }
 
 void mt_mat_test::run(vector<wstring>& argvs) {
