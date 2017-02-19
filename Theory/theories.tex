@@ -2397,6 +2397,7 @@ We apply the Maximum Likelihood Estimation to estimate the parameter $w$. Since 
 \end{equation}
 
 \subsection{Logarithmic Loss for Logistic Regression}
+\label{sec:log_loss_logistic}
 As described in Sec.\ref{sec:logFunction}, we can use log function to simplify the derivation. So the optimization object function by using logarithmic loss can be Eq.~\ref{equ:lr_loss_normal}.
 
 \begin{equation}
@@ -2422,14 +2423,14 @@ We compute the derivation of $JS$ about the logistic output $o$ ($o = p\left( {{
 \begin{equation}
 \label{equ:lrDerivation}
 \begin{aligned}
-\frac{{\partial JS}}{{\partial w}} &=  - \frac{{\partial \left( {{y}\log p\left( {{y} = 1|{x}} \right) + \left( {1 - y} \right)\log \left( {1 - p\left( {{y} = 1|{x}} \right)} \right)} \right)}}{{\partial w}}\\
+\frac{{\partial JS}}{{\partial w}} &=  - \frac{{\partial \left( {{y}\log o + \left( {1 - y} \right)\log \left( {1 - o} \right)} \right)}}{{\partial w}}\\
  &=  - \frac{{\partial \left( {y\log \left( {\frac{1}{{1 + {e^{ - xw}}}}} \right) + \left( {1 - y} \right)\log \left( {\frac{{{e^{ - xw}}}}{{1 + {e^{ - xw}}}}} \right)} \right)}}{{\partial w}}\\
  &=  - \frac{{\partial \left( {{y}\log \left( {\frac{1}{{1 + {e^{ - {x}w}}}}} \right) + \left( {1 - {y}} \right)\log \left( {\frac{{{e^{ - {x}w}}}}{{1 + {e^{ - {x}w}}}}} \right)} \right)}}{{\partial w}}\\
  &=  - \frac{{\partial \left( { - {y}\log \left( {1 + {e^{ - {x}w}}} \right) + \left( {1 - {y}} \right)\left( { - {x}w - \log \left( {1 + {e^{ - {x}w}}} \right)} \right)} \right)}}{{\partial w}}\\
  &=  - \frac{{\partial \left( { - {x}w - \log \left( {1 + {e^{ - {x}w}}} \right) + {y}{x}w} \right)}}{{\partial w}}\\
  &= \left( {1 - {y}} \right){{x} ^t} - \frac{{{e^{ - {x}w}}{{x} ^t}}}{{1 + {e^{ - {x}w}}}}\\
  &= \left( {1 - {y} - \frac{{{e^{ - {x}w}}}}{{1 + {e^{ - {x}w}}}}} \right){{x} ^t}\\
- &= \left( {p\left( {{y} = 1|{x}} \right) - {y}} \right){{x} ^t}
+ &= \left( {o - {y}} \right){{x} ^t}
 \end{aligned}
 \end{equation}
 here $x$ and $y$ indicate the feature and category for one sample respectively.
@@ -2439,7 +2440,7 @@ In order to determine the shape of the loss function $J$, we can compute the sec
 \begin{equation}
 \label{equ:lrSecondOrderDerivation}
 \begin{aligned}
-\frac{{{\partial ^2}JS}}{{\partial {w_j}\partial {w_k}}} &= {x_j}\frac{{\partial p\left( {y = 1|x} \right)}}{{\partial {w_k}}}\\
+\frac{{{\partial ^2}JS}}{{\partial {w_j}\partial {w_k}}} &= {x_j}\frac{{\partial o}}{{\partial {w_k}}}\\
  &= \frac{{{x_j}\partial \frac{1}{{1 + {e^{ - xw}}}}}}{{\partial {w_k}}}\\
  &=  - {x_j}{\left( {1 + {e^{ - xw}}} \right)^{ - 2}}{e^{ - xw}}\left( { - {x_k}} \right)\\
  &= {x_j}{x_k}{\left( {1 + {e^{ - xw}}} \right)^{ - 2}}{e^{ - xw}}
@@ -2500,8 +2501,8 @@ Then Eq.~\ref{equ:lrSecondOrderDerivation} can be modified by Eq.~\ref{equ:lr_se
 \begin{equation}
 \label{equ:lr_second_order_derivation_l2}
 \begin{aligned}
-\frac{{{\partial ^2}JS}}{{\partial {w_j}\partial {w_k}}} &= \frac{{\partial \left( {\left( {p\left( {y = 1|x} \right) - y} \right){x_j} + 2\lambda {w_j}} \right)}}{{\partial {w_k}}}\\
- &= {x_j}\frac{{\partial p\left( {y = 1|x} \right)}}{{\partial {w_k}}} + 2\lambda \left( {j = k} \right)\\
+\frac{{{\partial ^2}JS}}{{\partial {w_j}\partial {w_k}}} &= \frac{{\partial \left( {\left( {o - y} \right){x_j} + 2\lambda {w_j}} \right)}}{{\partial {w_k}}}\\
+ &= {x_j}\frac{{\partial o}}{{\partial {w_k}}} + 2\lambda \left( {j = k} \right)\\
  &= {x_j}{x_k}{\left( {1 + {e^{ - xw}}} \right)^{ - 2}}{e^{ - xw}} + 2\lambda \left( {j = k} \right)
 \end{aligned}
 \end{equation} 
@@ -2550,23 +2551,57 @@ w &\leftarrow w + \Delta w
 \end{equation}
 
 \subsection{Quadratic Loss for Logistic Regression}
+The above section adopt the logarithmic loss for logistic regression. What if we use the quadratic loss?
+In this section, we will discuss the result of using quadratic loss.
+First we give the loss function on total training dataset as
 
 \begin{displaymath}
-J\left ( w \right ) = \frac{1}{2} \sum_{N-1}^{i = 0} \left ( p\left ( y=1|x \right ) - y \right ) ^ 2
+J\left ( w \right ) = \frac{1}{2} \sum_{N-1}^{i = 0} \left ( o - y \right ) ^ 2
 \end{displaymath}
 
+The derivative of $JS$ about the output value $o$ is
 \begin{displaymath}
-\frac{\partial JS}{\partial o} = p\left ( y=1|x \right ) - y
+\frac{\partial JS}{\partial o} = o - y
 \end{displaymath}
 
+We compute the derivative of $JS$ on weight $w$ as
 \begin{displaymath}
 \begin{aligned}
-\frac{\partial JS}{\partial w}&={p}{'}\left ( y=1|x \right )\left ( p\left ( y=1|x \right ) - y \right )x\\
-&=p\left ( y=1|x \right )\left ( 1 - p\left ( y=1|x \right ) \right )\left ( p\left ( y=1|x \right ) - y \right )x^t
+\frac{\partial JS}{\partial w}&={o}{'}\left ( o - y \right )x\\
+&=o\left ( 1 - o \right )\left ( o - y \right )x^t\\
+&=o^2 - oy - o^3 + o^2 y
 \end{aligned}
 \end{displaymath}
 
-We can see that when $p\left ( y=1|x \right )$ is close to $1$ or $0$, the derivative value of $JS$ about $w$ will be close to $0$. If $p\left ( y=1|x \right )$ and $y$ are all close to $1$ or $0$, quadratic loss will not brings obstruction for learning. Otherwise, $p\left ( y=1|x \right )$ near to $1$ or $0$ will reduce the learning speed.
+We can see that when $o$ is close to $1$ or $0$, the derivative value of $JS$ about $w$ will be close to $0$. If $o$ and $y$ are all close to $1$ or $0$, quadratic loss will not brings obstruction for learning. Otherwise, $o$ near to $1$ or $0$ will reduce the learning speed.
+
+Let we discuss the loss function shape here. Similar to Sec.~\ref{sec:log_loss_logistic}, we compute the Hessian matrix for $JS$. The second order derivative of $JS$ about $w$ is
+
+\begin{displaymath}
+\begin{aligned}
+\frac{\partial JS}{\partial w_{j}w_{k}} &= x_{j}\frac{\partial \{o^2 - oy - o^3 + o^2 y\}}{\partial w_k}\\
+&=2o\left ( 1 + y \right )x_{j}\frac{\partial o}{\partial w_{jk}} - y\frac{\partial o}{\partial w_{jk}} - 3o^2\frac{\partial o}{\partial w_{jk}}\\
+&={x_j}{x_k}\left ( 2o + 2yo - y - 3o^2\right ){\left( {1 + {e^{ - xw}}} \right)^{ - 2}}{e^{ - xw}}
+\end{aligned}
+\end{displaymath}
+
+Hence, the Hessian matrix is
+
+\begin{displaymath}
+\label{equ:lr_hessian_matrix_quadratic_loss}
+H = \left[ {\begin{array}{*{20}{c}}
+{{x_0}^2}&{{x_0}{x_1}}&{...}&{{x_0}{x_{d - 1}}}\\
+{{x_1}{x_0}}&{{x_1}^2}&{...}&{{x_1}{x_{d - 1}}}\\
+{...}&{...}&{...}&{...}\\
+{{x_{d - 1}}{x_0}}&{{x_{d - 1}}{x_1}}&{...}&{{x_{d - 1}}^2}
+\end{array}} \right].\left ( 2o + 2yo - y - 3o^2\right ){\left( {1 + {e^{ - xw}}} \right)^{ - 2}}{e^{ - xw}}
+\end{displaymath}
+Notice that we can not acquire the sign of the right term 
+
+\begin{displaymath}
+\left ( 2o + 2yo - y - 3o^2\right ){\left( {1 + {e^{ - xw}}} \right)^{ - 2}}{e^{ - xw}}
+\end{displaymath}
+While in the logarithmic loss, the right term is a positive value. So the Hessian matrix for $JS$ can not be recognized as positive definite matrix. The loss function shape is not convex and the solution of quadratic loss for logistic regression may have many local minimal values. The Newton optimal algorithm is not suitable for this problem too.
 
 \section{Softmax}
 We can exploit LR model to acquire the probability function for binary categories. How can we extend the LR to more categories? In this section we will introduce the softmax model to handle the multi-class classification.
