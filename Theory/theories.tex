@@ -1970,6 +1970,7 @@ For a simple learning model, if the learning problem is complex, it can't work w
 Avoiding the over-fitting training does not ensure that the predict performance will be improved due to the assuming precondition that the DR curve is smooth  (learning models should be not too complex) for real data distribution. However, when apply the skills for avoiding over-fitting training for such complex models, the predict performance have high probability to be the better.
 
 \section{Bias and Variance}
+\subsection{Bias and Variance in Regression Problems}
 Given:\footnote{This section references from The Bias-Variance Tradeoff from internet.}
 
 - the true function we want to approximate
@@ -2152,6 +2153,81 @@ What if the training dataset has no noisy?
 We can easily find that the variance term will be zero! Since the output of trained model will be deterministic!
 What if the testing dataset has no noisy?
 The answer is the $var\left(noise\right)$ will be zero!
+
+\subsection{Bias and Variance In Classification Problems}
+For simple, we only discuss the bias and variance in binary classification problems.
+Let $f\left(x\right)$ denotes the real probability function we want to learn, $p\left(x\right)$ denotes the predicted probability function for a given input $x$, $y$ denotes the labelled category, $y_{*b}$ denotes the real category, $d\left(p\left(x\right)\right)$ is a binary function as 
+
+\begin{displaymath}
+d\left ( p\left ( x \right ) \right) = \left\{ \begin{array}{*{20}{l}}
+1,\quad p\left ( x \right ) > 0.5\\ 
+0,\quad p\left ( x \right ) <= 0.5
+\end{array}\right.
+\end{displaymath}
+
+If we make the convenient assumption that $p\left(p\left(x\right)\right)$ is a Gaussian, that is,
+
+\begin{displaymath}
+p\left(p\left(x\right)\right) = \frac{1}{\sqrt{2 \pi}\sigma }exp\left ( -\frac{\left ( p\left(x\right) - u \right )^2}{2\sigma ^2} \right )
+\end{displaymath}
+where $u = E\left(p\left(x\right)\right)$ and $\sigma ^2 = \rm{Var}\left(p\left(x\right)\right)$, then we have the expectation of the error ratio for classification can be formalize as
+
+\begin{displaymath}
+E_{*error\_ratio}\left ( d\left ( p\left ( x \right ) \right ) \neq y_{*b}\right ) = \left\{\begin{array}{*{20}{l}}
+\int_{0.5}^{\infty}p\left ( p\left ( x \right ) \right )dp\left ( x \right ), f\left ( x \right ) < 0.5\\
+\\
+\int_{-\infty}^{0.5}p\left ( p\left ( x \right ) \right )dp\left ( x \right ), f\left ( x \right ) >= 0.5
+\end{array}\right.
+\end{displaymath}
+
+For $f\left(x\right) < 0.5$ we have
+
+\begin{displaymath}
+\begin{aligned}
+E_{*error\_ratio}\left ( d\left ( p\left ( x \right ) \right ) \neq y_{*b}\right ) &= \int_{0.5}^{\infty}p\left ( p\left ( x \right ) \right )dp\left ( x \right )\\
+&=\int_{0.5}^{\infty}\left \{ \frac{1}{\sqrt{2 \pi}\sigma }exp\left ( -\frac{\left ( p\left(x\right) - u \right )^2}{2\sigma ^2} \right ) \right \}dp\left ( x \right )\\
+&=\frac{1}{\sqrt{2 \pi} }\int_{\left ( 0.5 - u \right ) / \sigma }^{\infty}exp\left ( -m^2 / {2} \right ) dm\\
+\end{aligned}
+\end{displaymath}
+where $m = \left ( p\left ( x \right ) - u\right ) / \sigma$ and $dm = dp\left ( x \right ) / \sigma$. For other case $f\left(x\right) >= 0.5$ we have
+
+\begin{displaymath}
+\begin{aligned}
+E_{*error\_ratio}\left ( d\left ( p\left ( x \right ) \right ) \neq y_{*b}\right ) &= \int_{-\infty}^{0.5}p\left ( p\left ( x \right ) \right )dp\left ( x \right )\\
+&=\int_{-\infty}^{0.5}\left \{ \frac{1}{\sqrt{2 \pi}\sigma }exp\left ( -\frac{\left ( p\left(x\right) - u \right )^2}{2\sigma ^2} \right ) \right \}dp\left ( x \right )\\
+&=\frac{1}{\sqrt{2 \pi} }\int_{-\left ( 0.5 - u \right ) / \sigma }^{\infty}exp\left ( -m^2 / {2} \right ) dm\\
+\end{aligned}
+\end{displaymath}
+where $m = -\left ( p\left ( x \right ) - u\right ) / \sigma$ and $dm = -dp\left ( x \right ) / \sigma$. Therefore, we have
+
+\begin{displaymath}
+E_{*error\_ratio}\left ( d\left ( p\left ( x \right ) \right ) \neq y_{*b}\right ) 
+=\frac{1}{\sqrt{2 \pi} }\int_{t}^{\infty}exp\left ( -m^2 / {2} \right )dm = \Phi \left ( t \right )
+\end{displaymath}
+where 
+
+\begin{displaymath}
+t = \left\{\begin{array}{*{20}{l}}
+\left ( 0.5 - u\right ) / \sigma, \quad f\left ( x \right ) < 0.5\\ 
+-\left ( 0.5 - u\right ) / \sigma, \quad f\left ( x \right ) >= 0.5
+\end{array}\right.
+\end{displaymath}
+
+Thus, we can write
+
+\begin{displaymath}
+\begin{aligned}
+E_{*error\_ratio}\left ( d\left ( p\left ( x \right ) \right ) \neq y_{*b}\right ) &= \Phi \left ( t \right )\\
+&=\Phi \left\{Sgn\left ( f\left ( x \right ) - 0.5 \right )\left ( u - 0.5 \right )\sigma^{-1} \right\}
+\end{aligned}
+\end{displaymath}
+
+The former term of $Sgn\left ( f\left ( x \right ) - 0.5 \right )\left ( u - 0.5 \right )$ can be considered boundary bias while the latter term of $\sigma^{-1}$ can be considered variance.
+From the form we can find that the boundary bias and variance are highly non-linear!
+The sign of boundary bias affect the effect of the variance in error.
+However, the small variance is more important for accurate classification while the boundary bias is not.
+If we can keep the variance to be very small, we do not need care about excessively the boundary bias (we only need the sign of boundary bias is correct).
+This is the theoretical basis for many tricks for classifiers, such as bagging, pruning for neural networks or decision trees.
 
 \chapter{DR Curve Based Models}
 
