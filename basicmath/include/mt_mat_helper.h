@@ -492,14 +492,14 @@ namespace basicmath {
 					break;
 				case mt_F32:
 					{
-						float* temp_ptr_src = (float*)ptr_data;
+						f32* temp_ptr_src = (f32*)ptr_data;
 						values[c] = temp_ptr_src[c];
 					}
 
 					break;
 				case mt_F64:
 					{
-						double* temp_ptr_src = (double*)ptr_data;
+						f64* temp_ptr_src = (f64*)ptr_data;
 						values[c] = temp_ptr_src[c];
 					}
 

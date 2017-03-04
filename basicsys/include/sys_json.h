@@ -154,6 +154,27 @@ namespace basicsys {
 		void operator>>(f64& val) const;
 
 		template<class T>
+		void operator>>(map<wstring, T>& val) const {
+			if (is_map()) {
+				val.clear();
+
+				sys_json_reader_iteartor iter = begin();
+
+				while (iter != end()) {
+					T one;
+					(*iter)>>one;
+
+					val.insert(make_pair((*iter).node_name(), one));
+
+					++iter;
+				}
+
+			} else {
+				basiclog_assert2(sys_false);
+			}
+		}
+
+		template<class T>
 		void operator>>(vector<T>& val) const {
 			if (is_seq()) {
 				val.clear();

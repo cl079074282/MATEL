@@ -63,7 +63,7 @@ void ml_nn_inner_product_linked_layer::feedforward(const ml_nn_layer_learning_pa
 				ff_signal = input_signal.mul(m_weight);
 			}
 
-			ff_signal = ff_signal + m_bias.repeat(ff_signal.size()[0], 1);
+			ff_signal = ff_signal + m_bias.repeat(ff_signal.size()[0], 0);
 
 			m_output->to_data_layer()->feedforward_singal(ff_signal, pars);
 		}
@@ -77,6 +77,8 @@ void ml_nn_inner_product_linked_layer::update_learning_param(const vector<mt_mat
 
 void ml_nn_inner_product_linked_layer::init_need_learn_params(int data_type) {
 	__super::init_need_learn_params(data_type);
+
+	basiclog_info2(sys_strcombine()<<L"layer: "<<name()<<L" init needed learning parameters");
 
 	if (m_weight_updater->init_type() == ml_Learning_Param_Init_Type_Gaussian) {
 		m_weight = mt_random::gaussian_iid(m_input->size()[0], m_output->size()[0], data_type, m_weight_updater->init_param()[0], m_weight_updater->init_param()[1]);		
@@ -141,7 +143,7 @@ ml_nn_inner_product_linked_layer* ml_nn_inner_product_linked_layer::read(const s
 	reader[L"drop_type"]>>drop_type;
 	basiclog_assert2(!drop_type.empty());
 
-	layer->m_drop_type = (Drop_Type)ml_helper::find_in_text(ml_Drop_Type_Descriptions, drop_type);
+	layer->m_drop_type = (Drop_Type)ml_helper::find_in_text(ml_Drop_Type_Descriptions, sizeof(ml_Drop_Type_Descriptions) / sizeof(wstring), drop_type);
 
 	if (reader.has_key(L"weight_updater")) {
 		layer->m_weight_updater = ml_learning_param_updater::read(reader[L"weight_updater"]);
@@ -195,6 +197,9 @@ ml_nn_layer* ml_nn_inner_product_linked_layer::clone() const {
 
 	layer->m_weight = m_weight.clone();
 	layer->m_bias = m_bias.clone();
+
+	layer->m_input_name = m_input->name();
+	layer->m_output_name = m_output->name();
 
 	return layer;
 }

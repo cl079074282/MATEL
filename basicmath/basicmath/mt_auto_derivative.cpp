@@ -42,6 +42,8 @@ mt_mat mt_auto_derivative::derivate(const mt_mat& target, const vector<mt_mat>& 
 	for (i32 i = 1; i < (i32)srcs.size(); ++i) {
 		res += derivate(target, srcs[i]);
 	}
+
+	return res;
 }
 
 void mt_auto_derivative::derivate(vector<mt_mat>& reses, const vector<mt_mat>& targets, const mt_mat& src) {
@@ -76,6 +78,10 @@ vector<mt_mat> mt_auto_derivative::derivate(vector<mt_mat>& targets, const vecto
 	return reses;
 }
 
+void mt_auto_derivative::clone(const mt_mat& res, const mt_mat& src) {
+	m_nodes.push_back(new mt_ad_clone_tree_node(res, get_node(src), m_max_cache_size));
+}
+
 void mt_auto_derivative::add(const mt_mat& res, const mt_mat& a, const vector<double>& b) {
 	m_nodes.push_back(new mt_ad_add_tree_node(res, get_node(a), get_node(b), m_max_cache_size));
 }
@@ -103,16 +109,36 @@ void mt_auto_derivative::mul(const mt_mat& res, const mt_mat& a, const mt_mat& b
 	m_nodes.push_back(new mt_ad_mul_tree_node(res, get_node(a), get_node(b), m_max_cache_size));
 }
 
-void mt_auto_derivative::sub(const mt_mat& res, const mt_mat& a, const vector<mt_range>& ranges) {
-	m_nodes.push_back(new mt_ad_sub_tree_node(res, get_node(a), ranges, m_max_cache_size));
+void mt_auto_derivative::cnov(const mt_mat& res, const mt_mat& src, const mt_mat& kernel, mt_Conv_Boundary_Type boundary_type, i32 size, const i32* strides) {
+	if (boundary_type != mt_Conv_Boundary_Type_Valid) {
+		basiclog_unsupport2();
+	}
+	
+	m_nodes.push_back(new mt_ad_conv_tree_node(res, get_node(src), get_node(kernel), size, strides, m_max_cache_size));
 }
 
-void mt_auto_derivative::sub_stride(const mt_mat& res, const mt_mat& a, const vector<i32>& strides) {
-	m_nodes.push_back(new mt_ad_sub_stride_tree_node(res, get_node(a), strides, m_max_cache_size));
+void mt_auto_derivative::flip(const mt_mat& res, const mt_mat& src, i32 size, const b8* flip_flags) {
+	m_nodes.push_back(new mt_ad_flip_tree_node(res, get_node(src), size, flip_flags, m_max_cache_size));
 }
 
-void mt_auto_derivative::expand(const mt_mat& res, const mt_mat& a, const vector<mt_range>& ranges) {
-	m_nodes.push_back(new mt_ad_expand_tree_node(res, get_node(a), ranges, m_max_cache_size));
+void mt_auto_derivative::reshape(const mt_mat& res, const mt_mat& src) {
+	m_nodes.push_back(new mt_ad_reshape_tree_node(res, get_node(src), m_max_cache_size));
+}
+
+void mt_auto_derivative::sub(const mt_mat& res, const mt_mat& a, i32 size, const mt_range* ranges) {
+	m_nodes.push_back(new mt_ad_sub_tree_node(res, get_node(a), size, ranges, m_max_cache_size));
+}
+
+void mt_auto_derivative::sub_stride(const mt_mat& res, const mt_mat& a, i32 size, const i32* strides) {
+	m_nodes.push_back(new mt_ad_sub_stride_tree_node(res, get_node(a), size, strides, m_max_cache_size));
+}
+
+void mt_auto_derivative::expand(const mt_mat& res, const mt_mat& a, i32 size, const mt_range* ranges) {
+	m_nodes.push_back(new mt_ad_expand_tree_node(res, get_node(a), size, ranges, m_max_cache_size));
+}
+
+void mt_auto_derivative::repeat(const mt_mat& res, const mt_mat& a) {
+	m_nodes.push_back(new mt_ad_repeat_tree_node(res, get_node(a), m_max_cache_size));
 }
 
 void mt_auto_derivative::activate(const mt_mat& res, const mt_mat& src, mt_Activate_Type type, const vector<f64>& activate_params) {

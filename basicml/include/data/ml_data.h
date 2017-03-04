@@ -16,10 +16,26 @@ namespace basicml {
 			m_mat = mat;
 			m_description = description;
 			m_sequence_data = sequence_data;
-			m_data_type = data_type;
+			m_data_type.resize(mat.size()[1], data_type);
 		}
 
 		ml_data_element(const mt_mat& mat, const wstring& description, const vector<wstring>& dimension_descriptions, ml_Data_Type data_type = ml_Data_Type_Numeric, b8 sequence_data = sys_false) {
+			m_mat = mat;
+			m_description = description;
+			m_sequence_data = sequence_data;
+			m_data_type.resize(mat.size()[1], data_type);
+
+			m_dimension_descriptions = dimension_descriptions;
+		}
+
+		ml_data_element(const mt_mat& mat, const wstring& description, vector<ml_Data_Type> data_type, b8 sequence_data = sys_false) {
+			m_mat = mat;
+			m_description = description;
+			m_sequence_data = sequence_data;
+			m_data_type = data_type;
+		}
+
+		ml_data_element(const mt_mat& mat, const wstring& description, const vector<wstring>& dimension_descriptions, vector<ml_Data_Type> data_type, b8 sequence_data = sys_false) {
 			m_mat = mat;
 			m_description = description;
 			m_sequence_data = sequence_data;
@@ -32,7 +48,7 @@ namespace basicml {
 		wstring m_description;
 
 		vector<wstring> m_dimension_descriptions;
-		ml_Data_Type m_data_type;
+		vector<ml_Data_Type> m_data_type;
 		b8 m_sequence_data;
 	};
 
@@ -45,53 +61,65 @@ namespace basicml {
 			return m_datas;
 		}
 
-		virtual mt_mat get(const wstring& description, i32 index = -1) const;
+		void modify_description(const wstring& dst_description, const wstring& src_description);
 
-		virtual mt_mat get(const wstring& description, const mt_range& range) const;
+		mt_mat get(const wstring& description, i32 index = -1) const;
 
-		virtual mt_mat get(const wstring& description, const vector<i32>& indexs) const;
+		mt_mat get(const wstring& description, const mt_range& range) const;
 
-		virtual void get(map<wstring, mt_mat>& data, i32 index) const;
+		mt_mat get(const wstring& description, const vector<i32>& indexs) const;
 
-		virtual void get(map<wstring, mt_mat>& datas, const mt_range& range) const;
+		void get(map<wstring, mt_mat>& data) const;
 
-		virtual mt_mat get(map<wstring, mt_mat>& datas, const vector<i32>& indexs) const;
+		void get(map<wstring, mt_mat>& datas, const mt_range& sequence_range, const mt_range& non_sequence_range) const;
 
-		virtual void feature(map<wstring, mt_mat>& features, i32 index = -1) const;
-		virtual void feature(map<wstring, mt_mat>& features, const mt_range& range) const;
-		virtual void feature(map<wstring, mt_mat>& features, const vector<i32>& indexs) const;
-		virtual void feature(map<wstring, mt_mat>& features, const vector<mt_range>& ranges, i32 suggest_sequence_length = 1) const;
+		mt_mat get(map<wstring, mt_mat>& datas, const vector<i32>& sequence_indexs, const vector<i32>& non_sequence_indexs) const;
 
-		virtual void response(map<wstring, mt_mat>& labels, i32 index = -1) const;
-		virtual void response(map<wstring, mt_mat>& labels, const mt_range& range) const;
-		virtual void response(map<wstring, mt_mat>& labels, const vector<i32>& indexs) const;
-		virtual void response(map<wstring, mt_mat>& labels, const vector<mt_range>& ranges, i32 suggest_sequence_length = 1) const;
+		void feature(map<wstring, mt_mat>& features) const;
+		void feature(map<wstring, mt_mat>& features, const mt_range& sequence_range, const mt_range& non_sequence_range) const;
+		void feature(map<wstring, mt_mat>& features, const vector<i32>& sequence_indexs, const vector<i32>& non_sequence_indexs) const;
 
-		virtual void label(map<wstring, mt_mat>& labels, map<wstring, mt_mat>& label_for_categories, const wstring& model_name, i32 index = -1) const;
-		virtual void label(map<wstring, mt_mat>& labels, map<wstring, mt_mat>& label_for_categories, const wstring& model_name, const mt_range& range) const;
-		virtual void label(map<wstring, mt_mat>& labels, map<wstring, mt_mat>& label_for_categories, const wstring& model_name, const vector<i32>& indexs) const;
-		virtual void label(map<wstring, mt_mat>& labels, map<wstring, mt_mat>& label_for_categories, const wstring& model_name, const vector<mt_range>& range, i32 suggest_sequence_length = 1) const;
+		void response(map<wstring, mt_mat>& labels) const;
+		void response(map<wstring, mt_mat>& labels, const mt_range& sequence_range, const mt_range& non_sequence_range) const;
+		void response(map<wstring, mt_mat>& labels, const vector<i32>& sequence_indexs, const vector<i32>& non_sequence_indexs) const;
 
-		virtual void set_weight(const mt_mat& weight) {
+		void label(map<wstring, mt_mat>& labels, map<wstring, mt_mat>& label_for_categories, const wstring& model_name) const;
+		void label(map<wstring, mt_mat>& labels, map<wstring, mt_mat>& label_for_categories, const wstring& model_name, const mt_range& sequence_range, const mt_range& non_sequence_range) const;
+		void label(map<wstring, mt_mat>& labels, map<wstring, mt_mat>& label_for_categories, const wstring& model_name, const vector<i32>& sequence_indexs, const vector<i32>& non_sequence_indexs) const;
+		
+		mt_mat feature(const wstring& feature_description, const vector<mt_range>& ranges, i32 suggest_sequence_length = 1) const;
+		mt_mat response(const wstring& response_description, const vector<mt_range>& ranges, i32 suggest_sequence_length = 1) const;
+		mt_mat label(const wstring& response_description, map<wstring, mt_mat>& label_for_categories, const wstring& model_name, const vector<mt_range>& range, i32 suggest_sequence_length = 1) const;
+
+		void set_weight(const mt_mat& weight) {
 			m_weight = weight;
 		}
 
-		virtual mt_mat weight() const {
+		mt_mat weight() const {
 			return m_weight;
 		}
 
-		virtual void statistic_category(map<wstring, mt_mat>& label_for_categories) const;
+		void statistic_category(map<wstring, mt_mat>& label_for_categories) const;
 
-		virtual void split(vector<ml_data*>& res, const vector<f64>& ratios) const {}
+		void split(vector<ml_data>& res, const vector<f64>& ratios) const {}
 
-		virtual i32 sequence_number()  const;
-		virtual i32 sample_number() const;
+		ml_data resample_align_weight(b8 can_share_memory = sys_true) const;
 
-		virtual ml_data resample_align_weight(b8 can_share_memory = sys_true) const;
+		ml_data generate_one_vs_all_data(b8 adjust_weight = sys_true, b8 can_share_memory = sys_true) const;
 
-		virtual ml_data generate_one_vs_all_data(b8 adjust_weight = sys_true, b8 can_share_memory = sys_true) const;
+		i32 sequence_number()  const;
+		i32 sequence_total_sample_number() const;
 
-		b8 is_feature_sequence() const;
+
+		b8 has_sequence() const;
+		b8 has_non_sequence() const;
+
+		b8 has_sequence_feature() const;
+		b8 has_non_sequence_feature() const;
+		
+		b8 has_sequence_response() const;
+		b8 has_non_sequence_response() const;
+
 		b8 is_seuqnce(const wstring& description) const;
 
 	protected:
@@ -116,9 +144,14 @@ namespace basicml {
 	protected:
 
 		void calculate_bucket(vector<vector<mt_range>>& ranges);
-		i32 batch_range(vector<mt_range>& ranges, i32 batch_index);
+		i32 bucket_batch_range(vector<mt_range>& ranges, i32 batch_index);
+		void normal_batch_range(vector<mt_range>& ranges, i32 batch_index);
 
-		vector<mt_range> m_reshap_ranges;
+		void reshape_range(vector<mt_range>& ranges, vector<vector<mt_range>>& raw_ranges, b8 random);
+
+		vector<mt_range> m_sequence_ranges;
+		vector<mt_range> m_non_sequence_ranges;
+	
 
 		i32 m_cache_batch_index;
 		vector<i32> m_cache_batch_indexs;
@@ -126,8 +159,6 @@ namespace basicml {
 		const ml_data* m_data;
 		i32 m_batch_size;
 
-		vector<mt_range> m_feature_sequence_ranges;
-		vector<mt_range> m_label_seuqnce_ranges;
 		b8 m_can_ignore_less_number_batch;
 		vector<i32> m_bucket_sizes;
 	};

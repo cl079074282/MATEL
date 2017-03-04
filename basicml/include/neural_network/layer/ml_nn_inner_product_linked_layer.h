@@ -1,14 +1,14 @@
 #pragma once
 
 #include "ml_nn_linked_layer.h"
-#include "neural_network/ml_bsgd_learning_param_updater.h"
 
 namespace basicml {
 
 	static const wstring ml_Drop_Type_Descriptions[] = {L"null", L"out", L"connect"};
 	static const wstring ml_Inference_Type_Descriptions[] = {L"average", L"drawn"};
 
-	
+	class ml_learning_param_updater;
+
 	class ml_nn_inner_product_linked_layer : public ml_nn_linked_layer {
 	public:
 
@@ -27,13 +27,8 @@ namespace basicml {
 
 		}
 
-		ml_nn_inner_product_linked_layer(const wstring& layer_name, ml_nn_data_layer* input_layer, ml_nn_data_layer* output_layer, ml_learning_param_updater* weight_updater = new ml_bsgd_learning_param_updater(), ml_learning_param_updater* bias_updater = new ml_bsgd_learning_param_updater(), Drop_Type drop_type = Drop_Type_Null, f64 drop_ratio = 0.5, Inference_Type inference_type = Inference_By_Average, i32 drawn_number = 1) {
-			m_layer_name = layer_name;
-			m_input = input_layer;
-			m_output = output_layer;
-
-			m_weight_updater = weight_updater;
-			m_bias_updater = bias_updater;
+		ml_nn_inner_product_linked_layer(const wstring& layer_name, ml_nn_data_layer* input_layer, ml_nn_data_layer* output_layer, ml_learning_param_updater* weight_updater = NULL, ml_learning_param_updater* bias_updater = NULL, Drop_Type drop_type = Drop_Type_Null, f64 drop_ratio = 0.5, Inference_Type inference_type = Inference_By_Average, i32 drawn_number = 1)
+			: ml_nn_linked_layer(layer_name, input_layer, output_layer, weight_updater, bias_updater) {
 
 			m_drop_type = drop_type;
 			m_drop_ratio = drop_ratio;

@@ -10,6 +10,9 @@ namespace basicmath {
 	enum mt_Operation_Type {
 		mt_Operation_Type_Const_Leaf,
 		mt_Operation_Type_Mat_Leaf,
+
+		mt_Operation_Type_Clone,
+
 		mt_Operation_Type_Add,
 		mt_Operation_Type_Subtract,
 		mt_Operation_Type_Pow,
@@ -22,6 +25,8 @@ namespace basicmath {
 		mt_Operation_Type_Sub,
 		mt_Operation_Type_Flip,
 		mt_Operation_Type_Expand,
+		mt_Operation_Type_Repeat,
+		mt_Operation_Type_Reshape,
 		mt_Operation_Type_Transpose,
 		mt_Operation_Type_Pooling,
 		mt_Operation_Type_Sub_Stride,
@@ -37,7 +42,7 @@ namespace basicmath {
 	class mt_ad_tree_node {
 	public:
 
-		virtual mt_Operation_Type op_type() = 0;
+		virtual mt_Operation_Type op_type() const = 0;
 
 		virtual b8 match(const mt_mat& other) const = 0;
 		virtual b8 related(const mt_mat& other) const = 0;
@@ -55,7 +60,7 @@ namespace basicmath {
 			m_values = const_value;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Const_Leaf;
 		}
 
@@ -154,13 +159,33 @@ namespace basicmath {
 			m_mat = mat;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Mat_Leaf;
 		}
 
 	protected:
 
 		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {return mt_mat();}
+	};
+
+	class mt_ad_clone_tree_node : public mt_ad_mat_tree_node {
+	public:
+
+		mt_ad_clone_tree_node(const mt_mat& res, mt_ad_tree_node* src, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+			init_construct(res, src);
+
+			m_max_cache_size = max_cache_size;
+		}
+
+		mt_Operation_Type op_type() const {
+			return mt_Operation_Type_Clone;
+		}
+
+	protected:
+
+		mt_mat derivate_child_on_operation(mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			return derivative_res.clone();
+		}
 	};
 
 	class mt_ad_add_tree_node : public mt_ad_mat_tree_node {
@@ -179,7 +204,7 @@ namespace basicmath {
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Add;
 		}
 
@@ -198,7 +223,7 @@ namespace basicmath {
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Subtract;
 		}
 
@@ -228,7 +253,7 @@ namespace basicmath {
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Mul;
 		}
 
@@ -238,7 +263,7 @@ namespace basicmath {
 			if (child_node == m_childs[0]) {
 				return derivative_res.mul(m_childs[1]->to_mat_tree_node()->m_mat.t());
 			} else if (child_node == m_childs[1]) {
-				return m_childs[0]->to_mat_tree_node()->m_mat.t().mul(derivative_res.t());
+				return m_childs[0]->to_mat_tree_node()->m_mat.t().mul(derivative_res);
 			} else {
 				basiclog_assert2(sys_false);
 				return mt_mat();
@@ -249,14 +274,14 @@ namespace basicmath {
 	class mt_ad_sub_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_sub_tree_node(const mt_mat& res, mt_ad_tree_node* src, const vector<mt_range>& ranges, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+		mt_ad_sub_tree_node(const mt_mat& res, mt_ad_tree_node* src, i32 size, const mt_range* ranges, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, src);
 
-			m_ranges = ranges;
+			mt_helper::vec_from_array(m_ranges, size, ranges);
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Sub;
 		}
 
@@ -277,14 +302,14 @@ namespace basicmath {
 	class mt_ad_sub_stride_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_sub_stride_tree_node(const mt_mat& res, mt_ad_tree_node* src, const vector<i32>& strides, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+		mt_ad_sub_stride_tree_node(const mt_mat& res, mt_ad_tree_node* src, i32 size, const i32* strides, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, src);
 
-			m_strides = strides;
+			mt_helper::vec_from_array(m_strides, size, strides);
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Sub_Stride;
 		}
 
@@ -300,14 +325,14 @@ namespace basicmath {
 	class mt_ad_expand_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_expand_tree_node(const mt_mat& res, mt_ad_tree_node* src, const vector<mt_range>& ranges, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+		mt_ad_expand_tree_node(const mt_mat& res, mt_ad_tree_node* src, i32 size, const mt_range* ranges, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			init_construct(res, src);
 
-			m_ranges = ranges;
+			mt_helper::vec_from_array(m_ranges, size, ranges);
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Sub;
 		}
 
@@ -324,18 +349,94 @@ namespace basicmath {
 		vector<mt_range> m_ranges;
 	};
 
+	class mt_ad_repeat_tree_node : public mt_ad_mat_tree_node {
+	public:
+
+		mt_ad_repeat_tree_node(const mt_mat& res, mt_ad_tree_node* src, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+			init_construct(res, src);
+
+			m_max_cache_size = max_cache_size;
+		}
+
+		mt_Operation_Type op_type() const {
+			return mt_Operation_Type_Repeat;
+		}
+
+	protected:
+
+		mt_mat derivate_child_on_operation( mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			mt_mat child_derivative = mt_mat(child_node->m_mat, mt_mat::Construct_Type_Create_As_Size);
+
+			vector<mt_range> sub_ranges;
+			sub_ranges.resize(child_node->m_mat.dim());
+
+			for (i32 i = 0; i < child_node->m_mat.dim(); ++i) {
+				sub_ranges[i].m_start = 0;
+				sub_ranges[i].m_end = child_node->m_mat.size()[i];
+			}
+
+			child_derivative.set(derivative_res.sub(sub_ranges));
+			return child_derivative;
+		}
+
+		i32 m_dim;
+	};
+
+	class mt_ad_flip_tree_node : public mt_ad_mat_tree_node {
+	public:
+
+		mt_ad_flip_tree_node(const mt_mat& res, mt_ad_tree_node* src, i32 size, const b8* flip_flags, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+			init_construct(res, src);
+
+			mt_helper::vec_from_array(m_flip_flags, size, flip_flags);
+			m_max_cache_size = max_cache_size;
+		}
+
+		mt_Operation_Type op_type() const {
+			return mt_Operation_Type_Flip;
+		}
+
+	protected:
+
+		mt_mat derivate_child_on_operation( mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			return derivative_res.flip(m_flip_flags).clone();
+		}
+
+		vector<b8> m_flip_flags;
+	};
+
+	class mt_ad_reshape_tree_node : public mt_ad_mat_tree_node {
+	public:
+
+		mt_ad_reshape_tree_node(const mt_mat& res, mt_ad_tree_node* src, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+			init_construct(res, src);
+			
+			m_max_cache_size = max_cache_size;
+		}
+
+		mt_Operation_Type op_type() const {
+			return mt_Operation_Type_Reshape;
+		}
+
+	protected:
+
+		mt_mat derivate_child_on_operation( mt_ad_mat_tree_node* child_node, const mt_mat& derivative_res) {
+			return derivative_res.reshape(child_node->m_mat.dim(), child_node->m_mat.size()).clone();
+		}
+	};
+
 	/** Only support valid type conv
 	*/
 	class mt_ad_conv_tree_node : public mt_ad_mat_tree_node {
 	public:
 
-		mt_ad_conv_tree_node(const mt_mat& res, mt_ad_tree_node* src, mt_ad_tree_node* kernel, const i32* strides, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
+		mt_ad_conv_tree_node(const mt_mat& res, mt_ad_tree_node* src, mt_ad_tree_node* kernel, i32 size, const i32* strides, i32 max_cache_size = mt_Auto_Derivative_Default_Max_Cache_Size) {
 			m_mat = res;
 			m_childs.push_back(src);
 			m_childs.push_back(kernel);
 
 			if (strides != NULL) {
-				mt_helper::vec_from_array(m_strides, res.dim(), strides);
+				mt_helper::vec_from_array(m_strides, size, strides);
 			}
 
 			m_max_cache_size = max_cache_size;
@@ -353,7 +454,7 @@ namespace basicmath {
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Sub;
 		}
 
@@ -375,7 +476,7 @@ namespace basicmath {
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Exp;
 		}
 
@@ -398,7 +499,7 @@ namespace basicmath {
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Pow;
 		}
 
@@ -421,7 +522,7 @@ namespace basicmath {
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Log;
 		}
 
@@ -444,7 +545,7 @@ namespace basicmath {
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
+		mt_Operation_Type op_type() const {
 			return mt_Operation_Type_Activate;
 		}
 
@@ -468,8 +569,8 @@ namespace basicmath {
 			m_max_cache_size = max_cache_size;
 		}
 
-		mt_Operation_Type op_type() {
-			return mt_Operation_Type_Activate;
+		mt_Operation_Type op_type() const {
+			return mt_Operation_Type_Loss;
 		}
 
 	protected:

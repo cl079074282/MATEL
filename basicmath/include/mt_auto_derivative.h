@@ -32,6 +32,10 @@ namespace basicmath {
 
 		vector<mt_mat> derivate(vector<mt_mat>& targets, const vector<mt_mat>& srcs);
 
+
+		void clone(const mt_mat& res, const mt_mat& src);
+
+
 		/**
 		@note all variable must be represented as mt_mat, here b is a const value!
 		*/
@@ -45,11 +49,15 @@ namespace basicmath {
 		void subtract(const mt_mat& res, const mt_mat& a, const mt_mat& b);
 		
 		void mul(const mt_mat& res, const mt_mat& a, const mt_mat& b);
+		void cnov(const mt_mat& res, const mt_mat& src, const mt_mat& kernel, mt_Conv_Boundary_Type boundary_type, i32 size, const i32* strides);
 
-		void sub(const mt_mat& res, const mt_mat& a, const vector<mt_range>& ranges);
-		void sub_stride(const mt_mat& res, const mt_mat& a, const vector<i32>& strides);
+		void flip(const mt_mat& res, const mt_mat& src, i32 size, const b8* flip_flags);
+		void reshape(const mt_mat& res, const mt_mat& src);
+		void sub(const mt_mat& res, const mt_mat& a, i32 size, const mt_range* ranges);
+		void sub_stride(const mt_mat& res, const mt_mat& a, i32 size, const i32* strides);
 
-		void expand(const mt_mat& res, const mt_mat& a, const vector<mt_range>& ranges);
+		void expand(const mt_mat& res, const mt_mat& a, i32 size, const mt_range* ranges);
+		void repeat(const mt_mat& res, const mt_mat& a);
 
 		void activate(const mt_mat& res, const mt_mat& src, mt_Activate_Type type, const vector<f64>& activate_params);
 

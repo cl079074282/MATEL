@@ -207,28 +207,72 @@ static void test_get_index() {
 }
 
 static void test_auto_derivative() {
-	mt_mat a = mt_mat(4, 4, mt_U8C1).set_incremental(0);
-	mt_mat b = mt_mat(2, 2, mt_U8C1).set_incremental(0);
+	mt_mat a = mt_mat(4, 4, mt_F32C1).set_incremental(0);
+	mt_mat b = mt_mat(2, 2, mt_F32C1).set_incremental(0);
 
-	//mt_mat sub_a = a.sub(mt_range(1, 3), 0).sub(mt_range(1, 3), 1);
 	mt_auto_derivative auto_derivative;
 	a.attach(&auto_derivative);
 
+
+	//we first test the derivative on mat add
 	mt_mat sub_a = a.sub(mt_range(1, 3), 0).sub(mt_range(1, 3), 1);
 
 	mt_mat c = sub_a + b;
 	mt_mat d = c + sub_a;
 	mt_mat e = c + d;
 
-	mt_mat derivate_c_to_a = auto_derivative.derivate(a, c);
 
-	basiclog_info2(derivate_c_to_a);
+	//e = c + d = c + (c + sub_a) = sub_a + b + (sub_a + b + sub_a) = 3sub_a + 2b
+	// 0 0 0 0
+	// 0 3 3 0
+	// 0 3 3 0
+	// 0 0 0 0
+	mt_mat derivate_c_to_a = auto_derivative.derivate(a, e);
 
-	//mt_mat gt_derivate_c_to_a = mt_mat().create_as(a).set(0);
-	//gt_derivate_c_to_a.sub(1, 3, 0).sub(1, 3, 1).set(2);
+	sys_test_equal(derivate_c_to_a, mt_mat_t<f32>(4, 4, 1).read(0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 0.0, 0.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0));
 
-	//basiclog_info2(gt_derivate_c_to_a);
-	//sys_test_equal(derivate_c_to_a, gt_derivate_c_to_a);
+	basiclog_info2(e);
+	basiclog_info2(b);
+
+	//then we test derivative on mul
+	//e*b = k
+	mt_mat k = e.mul(b);
+
+	basiclog_info2(k);
+
+	mt_mat derivative_k_to_e = auto_derivative.derivate(e, k);
+
+	basiclog_info2(derivative_k_to_e);
+
+	sys_test_equal(derivative_k_to_e, mt_mat_t<f32>(2, 2, 1).read(1.0, 5.0, 1.0, 5.0));
+
+	mt_mat derivative_k_to_b = auto_derivative.derivate(b, k);
+
+	basiclog_info2(derivative_k_to_b);
+
+	sys_test_equal(derivative_k_to_b, mt_mat_t<f32>(2, 2, 1).read(46.0, 46.0, 56.0, 56.0));
+
+	mt_mat derivate_k_to_a = auto_derivative.derivate(a, k);
+
+	basiclog_info2(derivate_k_to_a);
+
+	sys_test_equal(derivate_k_to_a, mt_mat_t<f32>(4, 4, 1).read(0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 15.0, 0.0, 0.0, 3.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0));
+
+	//test conv
+	mt_mat p = a.conv(b, mt_Conv_Boundary_Type_Valid);
+
+	mt_mat derivative_p_a = p.derivative(a);
+
+	basiclog_info2(derivative_p_a);
+
+	sys_test_equal(derivative_p_a, mt_mat_t<f32>(4, 4, 1).read(3.0, 5.0, 5.0, 2.0, 4.0, 6.0, 6.0, 2.0, 4.0, 6.0, 6.0, 2.0, 1.0, 1.0, 1.0, 0.0));
+
+	//test repeat
+	mt_mat g = a + b.reshape(1, 4).repeat(4, 0);
+
+	mt_mat derivative_g_to_b = g.derivative(b);
+
+	basiclog_info2(derivative_g_to_b);
 }
 
 static void test_mul() {

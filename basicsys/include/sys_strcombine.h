@@ -76,6 +76,18 @@ public:
 		return *this;
 	}
 
+	template<class T>
+	sys_strcombine& operator<<(const map<wstring, T>& data) {
+		*this<<L"{\n";
+
+		for (map<wstring, T>::const_iterator iter = data.begin(); iter != data.end(); ++iter) {
+			*this<<iter->first<<L":"<<iter->second<<L"\n";
+		}
+
+		*this<<L"}";
+		return *this;
+	}
+
 private:
 
 	wstring m_text;

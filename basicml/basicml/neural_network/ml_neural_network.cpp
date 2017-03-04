@@ -102,7 +102,9 @@ ml_neural_network* ml_neural_network::read(sys_json_reader& reader) {
 }
 
 void ml_neural_network::add_layer(ml_nn_layer* layer) {
-	
+	if (!check_layer_name(layer)) {
+		return;
+	}
 	
 	if (layer->to_input_data_layer() != NULL) {
 		m_input_layers.push_back(layer);
@@ -147,6 +149,8 @@ void ml_neural_network::train(const ml_data& training_data, const ml_data& valid
 		training_data.statistic_category(m_label_for_categories);
 	}
 	
+	basiclog_info2(sys_strcombine()<<L"label_for_categories "<<m_label_for_categories);
+
 	ml_nn_layer_learning_params params(sys_false, 0, m_iteration_number);
 	
 	while (params.m_iteration_index < m_iteration_number) {
@@ -244,8 +248,52 @@ void ml_neural_network::predict(ml_predict_result& res, const ml_data& features)
 	}
 }
 
+b8 ml_neural_network::check_layer_name(const ml_nn_layer* layer) const {
+	if (layer->to_input_data_layer() != NULL && layer->name().find(ml_Data_Description_Feature) == wstring::npos) {
+		basiclog_assert_message2(sys_false, sys_strcombine()<<L"name of input layer must contains "<<ml_Data_Description_Feature);
+		
+		return sys_false;
+	}
+
+	if (layer->to_output_data_layer() != NULL && layer->name().find(ml_Data_Description_Response) == wstring::npos) {
+		basiclog_assert_message2(sys_false, sys_strcombine()<<L"name of output layer must contains "<<ml_Data_Description_Response);
+
+		return sys_false;
+	}
+
+	for (i32 i = 0; i < (i32)m_input_layers.size(); ++i) {
+		if (m_input_layers[i]->name() == layer->name()) {
+			basiclog_assert_message2(sys_false, sys_strcombine()<<L"duplicated layer name: "<<layer->name());
+			return sys_false;
+		}
+	}
+
+	for (i32 i = 0; i < (i32)m_output_layers.size(); ++i) {
+		if (m_output_layers[i]->name() == layer->name()) {
+			basiclog_assert_message2(sys_false, sys_strcombine()<<L"duplicated layer name: "<<layer->name());
+			return sys_false;
+		}
+	}
+
+	for (i32 i = 0; i < (i32)m_hidden_layers.size(); ++i) {
+		if (m_hidden_layers[i]->name() == layer->name()) {
+			basiclog_assert_message2(sys_false, sys_strcombine()<<L"duplicated layer name: "<<layer->name());
+			return sys_false;
+		}
+	}
+
+	for (i32 i = 0; i < (i32)m_linked_layers.size(); ++i) {
+		if (m_linked_layers[i]->name() == layer->name()) {
+			basiclog_assert_message2(sys_false, sys_strcombine()<<L"duplicated layer name: "<<layer->name());
+			return sys_false;
+		}
+	}
+
+	return sys_true;
+}
+
 void ml_neural_network::output_batch_loss(const vector<mt_mat>& losses, i64 cost_time) const {
-	mt_mat batch_loss_sum;
+	mt_mat batch_loss_sum = mt_mat_helper::add(losses);
 
 	wstring info = sys_strcombine()<<L"batch cost: "<<cost_time<<L", loss sum: "<<batch_loss_sum.get(0, 0)[0];
 

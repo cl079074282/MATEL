@@ -80,7 +80,44 @@ i32 mt_mat_helper::depth_channel_i32(const wstring& depth_channel) {
 	return mt_make_depth_channel(depth, channel);
 }
 
+mt_mat mt_mat_helper::merge_align_dim(const vector<mt_mat>& elements, i32 dim, b8 can_share_memory /* = sys_true */) {
+	if (elements.empty()) {
+		return mt_mat();
+	}
+	
+	if ((i32)elements.size() == 1 && can_share_memory) {
+		return elements[0];
+	}
+
+	basicmath_mat_request_memory(i32, res_size, elements[0].dim());
+
+	for (i32 i = 0; i < elements[0].dim(); ++i) {
+		res_size[i] = elements[0].size()[i];
+	}
+
+	for (i32 i = 1; i < (i32)elements.size(); ++i) {
+		res_size[dim] += elements[i].size()[dim];
+	}
+
+	mt_mat res(elements[0].dim(), res_size, elements[0].depth_channel());
+
+	i32 dim_start_index = 0;
+
+	for (i32 i = 0; i < (i32)elements.size(); ++i) {
+		mt_mat sub_mat = res.sub(dim_start_index, dim_start_index + elements[0].size()[dim], dim);
+		dim_start_index += elements[0].size()[dim];
+
+		sub_mat.set(elements[i]);
+	}
+
+	return res;
+}
+
 mt_mat mt_mat_helper::merge_align_channel(const vector<mt_mat>& channels, b8 can_share_memory) {
+	if (channels.empty()) {
+		return mt_mat();
+	}
+
 	if ((i32)channels.size() == 1 && can_share_memory) {
 		return channels[0];
 	}
@@ -106,7 +143,7 @@ i32 mt_mat_helper::get_conv_result_size(int src_size, int kernel_size, int strid
 		res_size = src_size + kernel_size - 1;
 	} else if (boundary_type == mt_Conv_Boundary_Type_Same) {
 		res_size = src_size;
-	} else if (boundary_type == mt_Conv_Boundary_Type_Same) {
+	} else if (boundary_type == mt_Conv_Boundary_Type_Valid) {
 		res_size = src_size - kernel_size + 1;
 	} else {
 		basiclog_unsupport2();

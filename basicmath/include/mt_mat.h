@@ -101,24 +101,24 @@ class mt_mat {
 		mt_mat& set(const mt_scalar& value);
 		mt_mat& set(const vector<basicsys::f64>& value);
 
-		mt_mat& set(double value, basicsys::i32 row, basicsys::i32 col);
-		mt_mat& set(double value, basicsys::i32 plane, basicsys::i32 row, basicsys::i32 col);
+		mt_mat& set(double value, basicsys::i32 index1, basicsys::i32 index2);
+		mt_mat& set(double value, basicsys::i32 index1, basicsys::i32 index2, basicsys::i32 index3);
 		mt_mat& set(double value, basicsys::i32 dim, const basicsys::i32* indexs);
 
-		mt_mat& set(const mt_scalar& value, basicsys::i32 row, basicsys::i32 col);
-		mt_mat& set(const mt_scalar& value, basicsys::i32 plane, basicsys::i32 row, basicsys::i32 col);
+		mt_mat& set(const mt_scalar& value, basicsys::i32 index1, basicsys::i32 index2);
+		mt_mat& set(const mt_scalar& value, basicsys::i32 index1, basicsys::i32 index2, basicsys::i32 index3);
 		mt_mat& set(const mt_scalar& value, basicsys::i32 dim, const basicsys::i32* indexs);
 
-		mt_mat& set(const vector<double>& values, basicsys::i32 row, basicsys::i32 col);
-		mt_mat& set(const vector<double>& values, basicsys::i32 plane, basicsys::i32 row, basicsys::i32 col);
+		mt_mat& set(const vector<double>& values, basicsys::i32 index1, basicsys::i32 index2);
+		mt_mat& set(const vector<double>& values, basicsys::i32 index1, basicsys::i32 index2, basicsys::i32 index3);
 		mt_mat& set(const vector<double>& values, basicsys::i32 dims, const basicsys::i32* indexs);
 
-		mt_mat& set(const double* values, basicsys::i32 row, basicsys::i32 col);
-		mt_mat& set(const double* values, basicsys::i32 plane, basicsys::i32 row, basicsys::i32 col);
+		mt_mat& set(const double* values, basicsys::i32 index1, basicsys::i32 index2);
+		mt_mat& set(const double* values, basicsys::i32 index1, basicsys::i32 index2, basicsys::i32 index3);
 		mt_mat& set(const double* values, basicsys::i32 dims, const basicsys::i32* indexs);
 
-		mt_scalar get(basicsys::i32 row, basicsys::i32 col) const;
-		mt_scalar get(basicsys::i32 plane, basicsys::i32 row, basicsys::i32 col) const;
+		mt_scalar get(basicsys::i32 index1, basicsys::i32 index2) const;
+		mt_scalar get(basicsys::i32 index1, basicsys::i32 index2, basicsys::i32 index3) const;
 		mt_scalar get(basicsys::i32 dim, const basicsys::i32* indexs) const;
 
 		void get(vector<double>& values, basicsys::i32 row, basicsys::i32 col) const;
@@ -181,7 +181,8 @@ class mt_mat {
 		mt_mat flip(int dim) const;
 		mt_mat flip(const vector<basicsys::i32>& dim_indexs) const;
 		mt_mat flip(int size, const int* dims) const;
-		mt_mat flip(const basicsys::b8* flip_flags) const;
+		mt_mat flip(const vector<basicsys::b8> flip_flags) const;
+		mt_mat flip(i32 size, const basicsys::b8* flip_flags) const;
 		mt_mat flip_all_dim() const;
 
 		mt_mat channel_as_last_dim() const;

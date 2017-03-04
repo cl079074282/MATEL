@@ -9,8 +9,8 @@ namespace basicmath {
 	public:
 
 		mt_range_t() {
-			m_start = 0;
-			m_end = 0;
+			m_start = -1;
+			m_end = -1;
 		}
 
 		mt_range_t(T start, T end) {

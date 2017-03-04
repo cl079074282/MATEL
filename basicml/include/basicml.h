@@ -15,3 +15,5 @@
 #include "neural_network/ml_neural_network.h"
 
 #include "neural_network/ml_bsgd_learning_param_updater.h"
+
+#include "data/ml_mnist.h"

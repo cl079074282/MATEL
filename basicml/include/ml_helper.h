@@ -48,7 +48,7 @@ namespace basicml {
 
 		static void statistic_data_range(vector<mt_range>& ranges, const mt_mat& data, b8 sequence_data = sys_false);
 
-		static i32 find_in_text(const wstring* texts, const wstring& candidate, b8 assert_finded = sys_true);
+		static i32 find_in_text(const wstring* texts, i32 size, const wstring& candidate, b8 assert_finded = sys_true);
 
 	protected:
 

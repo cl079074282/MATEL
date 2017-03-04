@@ -22,10 +22,11 @@
     <ClInclude Include="..\..\basicml\stdafx\stdafx.h" />
     <ClInclude Include="..\..\include\basicml.h" />
     <ClInclude Include="..\..\include\data\ml_data.h" />
-    <ClInclude Include="..\..\include\data\ml_predict_result.h" />
+    <ClInclude Include="..\..\include\data\ml_mnist.h" />
     <ClInclude Include="..\..\include\ml_helper.h" />
     <ClInclude Include="..\..\include\ml_algorithm.h" />
     <ClInclude Include="..\..\include\ml_model_config.h" />
+    <ClInclude Include="..\..\include\ml_predict_result.h" />
     <ClInclude Include="..\..\include\ml_statistic_info.h" />
     <ClInclude Include="..\..\include\ml_supervised_data.h" />
     <ClInclude Include="..\..\include\ml_supervised_algorithm.h" />
@@ -44,8 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\basicml\data\ml_data.cpp" />
+    <ClCompile Include="..\..\basicml\data\ml_mnist.cpp" />
     <ClCompile Include="..\..\basicml\ml_helper.cpp" />
     <ClCompile Include="..\..\basicml\ml_predict_result.cpp" />
+    <ClCompile Include="..\..\basicml\mt_statistic_info.cpp" />
     <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_batch_norm_linked_layer.cpp" />
     <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_data_layer.cpp" />
     <ClCompile Include="..\..\basicml\neural_network\layer\ml_nn_inner_product_linked_layer.cpp" />

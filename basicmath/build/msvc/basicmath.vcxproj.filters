@@ -69,6 +69,9 @@
     <ClInclude Include="..\..\include\mt_random.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\mt_hist.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\basicmath\mt_mat.cpp">
@@ -99,6 +102,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\basicmath\mt_random.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicmath\mt_hist.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

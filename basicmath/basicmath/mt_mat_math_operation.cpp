@@ -1143,6 +1143,7 @@ mt_mat mt_mat::mul(const mt_mat& value) const {
 	basiclog_assert2(depth_channel() == value.depth_channel());
 	basiclog_assert2(depth() == mt_F32 || depth() == mt_F64);
 	basiclog_assert2(channel() == 1);
+	basiclog_assert_message2(size()[1] == value.size()[0], L"matrix a * b mul must be satisfied the rule of a.col = b.row!");
 
 #if defined BASICMATH_MKL
 
@@ -1185,6 +1186,12 @@ mt_mat mt_mat::mul(const mt_mat& value) const {
 				cblas_sgemm(CblasRowMajor, cur_transpose, other_transpose, row_a, col_b, col_a, 1.0f, (const f32*)ptr_cur_data, cur_ld, (const f32*)ptr_other_data, other_ld, 0.0f, (f32*)ptr_res_data, res_ld);
 			} else if (mt_F64 == res.depth()) {
 				cblas_dgemm(CblasRowMajor, cur_transpose, other_transpose, row_a, col_b, col_a, 1.0, (const f64*)ptr_cur_data, cur_ld, (const f64*)ptr_other_data, other_ld, 0.0, (f64*)ptr_res_data, res_ld);
+			}
+
+			if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
+				res.attach(m_auto_derivative);
+
+				m_auto_derivative->mul(res, *this, value);
 			}
 
 			return res;
@@ -1307,6 +1314,12 @@ mt_mat mt_mat::conv(const mt_mat& kernel, mt_Conv_Boundary_Type boundary_type /*
 	basicmath_mat_release(temp_strides);
 	basicmath_mat_release(res_steps);
 
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
+		res.attach(m_auto_derivative);
+
+		m_auto_derivative->cnov(res, *this, kernel, boundary_type, dim(), temp_strides);
+	}
+
 	return res;
 }
 
@@ -1406,14 +1419,15 @@ mt_mat mt_mat::expand(i32 size, const i32* side_sizes_1, const i32* side_sizes_2
 
 	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
 		res.attach(m_auto_derivative);
-
-		vector<mt_range> vec_ranges;
-		mt_helper::vec_from_array(vec_ranges, size, ranges);
-		m_auto_derivative->expand(res, *this, vec_ranges);
+		m_auto_derivative->expand(res, *this, size, ranges);
 	}
+
+	return res;
 }
 
 mt_mat mt_mat::sub_stride(i32 size, const i32* strides) const {
+	basiclog_assert2(size == dim());
+
 	basicmath_mat_request_memory(i32, res_sizes, dim());
 
 	for (int i = 0; i < dim(); ++i) {
@@ -1430,14 +1444,16 @@ mt_mat mt_mat::sub_stride(i32 size, const i32* strides) const {
 	basicmath_mat_release(res_sizes);
 
 	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
-		vector<i32> vec_strides;
-		mt_helper::vec_from_array(vec_strides, size, strides);
 		res.attach(m_auto_derivative);
 
-		m_auto_derivative->sub_stride(res, *this, vec_strides);
+		m_auto_derivative->sub_stride(res, *this, size, strides);
 	}
 
 	return res;
+}
+
+mt_mat mt_mat::activate(mt_Activate_Type type, const vector<f64>& activate_params) const {
+	return activate(type, (i32)activate_params.size(), &activate_params[0]);
 }
 
 mt_mat mt_mat::activate(mt_Activate_Type type, i32 activate_param_size, const f64* activate_params) const {
@@ -1458,6 +1474,12 @@ mt_mat mt_mat::activate(mt_Activate_Type type, i32 activate_param_size, const f6
 		res.attach(m_auto_derivative);
 		m_auto_derivative->activate(res, *this, type, vec_activate_params);
 	}
+
+	return res;
+}
+
+mt_mat& mt_mat::self_activate(mt_Activate_Type type, const vector<f64>& activate_params) {
+	return self_activate(type, (i32)activate_params.size(), &activate_params[0]);
 }
 
 mt_mat& mt_mat::self_activate(mt_Activate_Type type, i32 activate_param_size, const f64* activate_params) {
@@ -1470,6 +1492,8 @@ mt_mat& mt_mat::self_activate(mt_Activate_Type type, i32 activate_param_size, co
 	} else {
 		private_math_operation::activate<f64>(*this, *this, type, activate_param_size, activate_params);
 	}
+
+	return *this;
 }
 
 mt_mat mt_mat::loss(const mt_mat& matching_mat, mt_Loss_Type type) const {

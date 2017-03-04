@@ -267,7 +267,7 @@ namespace basicmath {
 			return mutiply(&elements[0], &elements[0] + (i32)elements.size());
 		}
 
-		
+		static i32 reverse_i32(i32 val);
 	};
 
 	template<class T>

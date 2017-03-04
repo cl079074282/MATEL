@@ -17,7 +17,8 @@ public:
 	}
 
 	ml_nn_data_layer(const wstring& layer_name, i32 unit_number, mt_Activate_Type activate_type = mt_Activate_Type_Linear, const vector<f64>& activate_params = vector<f64>()) 
-		: m_feedforward_count(0)
+		: ml_nn_layer(layer_name)
+		, m_feedforward_count(0)
 		, m_activate_type(activate_type)
 		, m_channels(1)
 		, m_activate_params(activate_params) {
@@ -25,7 +26,8 @@ public:
 	}
 
 	ml_nn_data_layer(const wstring& layer_name, i32 width, i32 height, i32 channels, mt_Activate_Type activate_type = mt_Activate_Type_Linear, const vector<f64>& activate_params = vector<f64>()) 
-		: m_feedforward_count(0)
+		: ml_nn_layer(layer_name)
+		, m_feedforward_count(0)
 		, m_activate_type(activate_type)
 		, m_channels(channels)
 		, m_activate_params(activate_params) {

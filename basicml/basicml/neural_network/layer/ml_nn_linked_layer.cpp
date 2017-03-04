@@ -4,6 +4,27 @@
 #include "ml_nn_data_layer.h"
 #include "ml_learning_param_updater.h"
 
+ml_nn_linked_layer::ml_nn_linked_layer(const wstring& layer_name, ml_nn_data_layer* input_layer, ml_nn_data_layer* output_layer, ml_learning_param_updater* weight_updater /* = new ml_bsgd_learning_param_updater() */, ml_learning_param_updater* bias_updater /* = new ml_bsgd_learning_param_updater() */)
+	: ml_nn_layer(layer_name)
+	, m_input(NULL)
+	, m_output(NULL) {
+	
+
+		m_weight_updater = weight_updater;
+		m_bias_updater = bias_updater;
+
+		if (m_weight_updater == NULL) {
+			m_weight_updater = new ml_bsgd_learning_param_updater();
+		}
+
+		if (m_bias_updater == NULL) {
+			m_bias_updater = new ml_bsgd_learning_param_updater();
+		}
+
+		set_input(input_layer);
+		set_output(output_layer);
+}
+
 ml_nn_linked_layer::~ml_nn_linked_layer() {
 	basicsys_delete(m_weight_updater);
 	basicsys_delete(m_bias_updater);
@@ -38,6 +59,7 @@ void ml_nn_linked_layer::set_input(ml_nn_data_layer* input) {
 		return;
 	}
 
+	//a linked layer can only has a input layer, hence we need to erase itself from the previous input data layer 
 	if (NULL != m_input) {
 		vector<ml_nn_linked_layer*>::iterator iter = find(m_input->m_next_linked_layers.begin(), m_input->m_next_linked_layers.end(), this);
 

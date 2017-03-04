@@ -40,8 +40,10 @@ namespace basicml {
 			mt_mat label_for_category = mt_mat(1, (i32)vec_categories.size(), response.depth_channel());
 
 			for (int i = 0; i < (int)vec_categories.size(); ++i) {
-				label_for_category.at<T>(0, i) = (T)vec_categories[i];
+				label_for_category.at<T>(0, i, 0) = (T)vec_categories[i];
 			}
+
+			return label_for_category;
 		}
 
 		template<class T>
@@ -290,6 +292,9 @@ mt_mat ml_helper::label_from_response(const mt_mat& response, const mt_mat& labe
 			basiclog_unsupport2();
 			return mt_mat();
 		}
+	} else {
+		basiclog_unsupport2();
+		return mt_mat();
 	}
 }
 
@@ -463,12 +468,89 @@ void ml_helper::read(vector<ml_nn_layer*>& input_layers, vector<ml_nn_layer*>& h
 	link_layer(linked_layers, input_layers, hidden_layers, output_layers);
 }
 
-void ml_helper::statistic_data_range(vector<vector<mt_range>>& ranges, const mt_mat& data, b8 seuqnce_data) {
+void ml_helper::clone_layer(vector<ml_nn_layer*>& dst_input_layers, vector<ml_nn_layer*>& dst_hidden_layers, vector<ml_nn_layer*>& dst_output_layers, vector<ml_nn_layer*>& dst_linked_layers, const vector<ml_nn_layer*>& src_input_layers, const vector<ml_nn_layer*>& src_hidden_layers, const vector<ml_nn_layer*>& src_output_layers, const vector<ml_nn_layer*>& src_linked_layers) {
+	dst_input_layers.resize(src_input_layers.size());
+	dst_hidden_layers.resize(src_hidden_layers.size());
+	dst_output_layers.resize(src_output_layers.size());
+	dst_linked_layers.resize(src_linked_layers.size());
 
+	for (i32 i = 0; i < (i32)src_input_layers.size(); ++i) {
+		dst_input_layers[i] = src_input_layers[i]->clone();
+	}
+
+	for (i32 i = 0; i < (i32)src_hidden_layers.size(); ++i) {
+		dst_hidden_layers[i] = src_hidden_layers[i]->clone();
+	}
+
+	for (i32 i = 0; i < (i32)src_output_layers.size(); ++i) {
+		dst_output_layers[i] = src_output_layers[i]->clone();
+	}
+
+	for (i32 i = 0; i < (i32)src_linked_layers.size(); ++i) {
+		dst_linked_layers[i] = src_linked_layers[i]->clone();
+	}
+
+	link_layer(dst_linked_layers, dst_input_layers, dst_hidden_layers, dst_output_layers);
+}
+
+void ml_helper::statistic_data_range(vector<vector<mt_range>>& ranges, const mt_mat& data, b8 seuqnce_data) {
+	ranges.clear();
+	ranges.resize(1);
+	
+	statistic_data_range(ranges[0], data, seuqnce_data);	
 }
 
 void ml_helper::statistic_data_range(vector<mt_range>& ranges, const mt_mat& data, b8 sequence_data /* = sys_false */) {
+	ranges.clear();
 
+	if (sequence_data) {
+		ranges.reserve(data.size()[0] / 10 + 1);
+
+		ranges.push_back(mt_range());
+
+
+		for (i32 i = 0; i < data.size()[0]; ++i) {
+			if (ranges.back().m_start == -1) {
+				ranges.back().m_start = i;
+			}
+
+			if (data.depth() == mt_F32) {
+				if (mt_helper::is_infinity(data.at<f32>(i, 0))) {
+					ranges.back().m_end = i;
+
+					basiclog_assert2(ranges.back().m_start >= 0 && ranges.back().size() > 0);
+
+					ranges.push_back(mt_range());
+				}
+			}
+		}
+
+		if (ranges.back().size() == 0) {
+			ranges.pop_back();
+		}
+
+	} else {
+		ranges.resize(data.size()[0]);
+
+		for (i32 i = 0; i < data.size()[0]; ++i) {
+			ranges[i].m_start = i;
+			ranges[i].m_end = i + 1;
+		}
+	}
+}
+
+i32 ml_helper::find_in_text(const wstring* texts, i32 size, const wstring& candidate, b8 assert_finded /* = sys_true */) {
+	for (i32 i = 0; i < size; ++i) {
+		if (texts[i] == candidate) {
+			return i;
+		}
+	}
+
+	if (assert_finded) {
+		basiclog_assert2(sys_false);
+	}
+
+	return -1;
 }
 
 void ml_helper::link_layer(vector<ml_nn_layer*>& linked_layers, const vector<ml_nn_layer*>& input_layers, const vector<ml_nn_layer*>& hidden_layers, const vector<ml_nn_layer*>& output_layers) {

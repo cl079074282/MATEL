@@ -73,7 +73,7 @@ ml_bsgd_learning_param_updater* ml_bsgd_learning_param_updater::read(const sys_j
 		wstring penalty_type_description;
 		reader[L"penalty_type"]>>penalty_type_description;
 
-		updater->m_penalty_type = (ml_Penalty_Type)ml_helper::find_in_text(ml_Penalty_Type_Descriptions, penalty_type_description, sys_true);
+		updater->m_penalty_type = (ml_Penalty_Type)ml_helper::find_in_text(ml_Penalty_Type_Descriptions, sizeof(ml_Penalty_Type_Descriptions) / sizeof(wstring), penalty_type_description, sys_true);
 		reader[L"penalty_alpha"]>>updater->m_penalty_alpha;
 	} 
 

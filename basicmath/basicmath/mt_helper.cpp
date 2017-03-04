@@ -74,3 +74,12 @@ int mt_helper::compare_double(double a, double b) {
 		return -1;
 	}
 }
+
+i32 mt_helper::reverse_i32(i32 val) {
+	unsigned char ch1, ch2, ch3, ch4;
+	ch1 = val & 255;
+	ch2 = (val >> 8) & 255;
+	ch3 = (val >> 16) & 255;
+	ch4 = (val >> 24) & 255;
+	return((i32) ch1 << 24) + ((i32)ch2 << 16) + ((i32)ch3 << 8) + ch4;
+}

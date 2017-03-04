@@ -43,9 +43,12 @@
     <ClInclude Include="..\..\include\ml_statistic_info.h" />
     <ClInclude Include="..\..\include\ml_supervised_algorithm.h" />
     <ClInclude Include="..\..\include\ml_algorithm.h" />
-    <ClInclude Include="..\..\include\data\ml_predict_result.h" />
     <ClInclude Include="..\..\include\neural_network\ml_bsgd_learning_param_updater.h">
       <Filter>neural_network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ml_predict_result.h" />
+    <ClInclude Include="..\..\include\data\ml_mnist.h">
+      <Filter>data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +103,10 @@
     <ClCompile Include="..\..\basicml\ml_predict_result.cpp" />
     <ClCompile Include="..\..\basicml\neural_network\ml_bsgd_learning_param_updater.cpp">
       <Filter>neural_network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\basicml\mt_statistic_info.cpp" />
+    <ClCompile Include="..\..\basicml\data\ml_mnist.cpp">
+      <Filter>data</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

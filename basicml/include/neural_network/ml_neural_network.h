@@ -67,6 +67,8 @@ namespace basicml {
 
 	protected:
 
+		b8 check_layer_name(const ml_nn_layer* layer) const;
+
 		void output_batch_loss(const vector<mt_mat>& losses, i64 cost_time) const;
 		void statistic(const ml_data& training_data, const ml_data& validation_data);
 		

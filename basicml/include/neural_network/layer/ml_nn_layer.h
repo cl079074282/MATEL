@@ -22,10 +22,18 @@ public:
 
 	}
 
+	ml_nn_layer(const wstring& name)
+		: m_layer_name(name) {
+
+	}
+
 	virtual ~ml_nn_layer() {}
 
 	virtual void compute_default_setting() {}
 
+	/**
+	@note linked layer does not clone the name of input and output layer instead of the data layers.
+	*/
 	virtual ml_nn_layer* clone() const = 0;
 
 	virtual ml_nn_data_layer* to_data_layer() {return NULL;}

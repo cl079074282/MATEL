@@ -15,6 +15,8 @@ namespace basicml {
 			, m_input(NULL) {
 		}
 
+		ml_nn_linked_layer(const wstring& layer_name, ml_nn_data_layer* input_layer, ml_nn_data_layer* output_layer, ml_learning_param_updater* weight_updater = NULL, ml_learning_param_updater* bias_updater = NULL);
+
 		virtual ~ml_nn_linked_layer();
 
 		ml_nn_linked_layer* to_linked_layer() {return this;}

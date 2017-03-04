@@ -495,16 +495,16 @@ mt_mat& mt_mat::set(const vector<double>& value) {
 	return *this;
 }
 
-mt_mat& mt_mat::set(double value, basicsys::i32 row, basicsys::i32 col) {
+mt_mat& mt_mat::set(double value, basicsys::i32 index1, basicsys::i32 index2) {
 	int dims = 2;
-	int indexs[] = {row, col};
+	int indexs[] = {index1, index2};
 
 	return set(value, dims, indexs);
 }
 
-mt_mat& mt_mat::set(double value, basicsys::i32 plane, basicsys::i32 row, basicsys::i32 col) {
+mt_mat& mt_mat::set(double value, basicsys::i32 index1, basicsys::i32 index2, basicsys::i32 index3) {
 	int dims = 3;
-	int indexs[] = {plane, row, col};
+	int indexs[] = {index1, index2, index3};
 
 	return set(value, dims, indexs);
 }
@@ -516,16 +516,16 @@ mt_mat& mt_mat::set(double value, basicsys::i32 dims, const basicsys::i32* index
 	return *this;
 }
 
-mt_mat& mt_mat::set(const mt_scalar& value, basicsys::i32 row, basicsys::i32 col) {
+mt_mat& mt_mat::set(const mt_scalar& value, basicsys::i32 index1, basicsys::i32 index2) {
 	int dims = 2;
-	int indexs[] = {row, col};
+	int indexs[] = {index1, index2};
 
 	return set(value, dims, indexs);
 }
 
-mt_mat& mt_mat::set(const mt_scalar& value, basicsys::i32 plane, basicsys::i32 row, basicsys::i32 col) {
+mt_mat& mt_mat::set(const mt_scalar& value, basicsys::i32 index1, basicsys::i32 index2, basicsys::i32 index3) {
 	int dims = 3;
-	int indexs[] = {plane, row, col};
+	int indexs[] = {index1, index2, index3};
 
 	return set(value, dims, indexs);
 }
@@ -550,6 +550,15 @@ mt_mat& mt_mat::set(const double* values, basicsys::i32 dims, const basicsys::i3
 	return *this;
 }
 
+mt_scalar mt_mat::get(basicsys::i32 index1, basicsys::i32 index2) const {
+	i32 indexes[] = {index1, index2};
+	mt_scalar res;
+
+	get(res.value, 2, indexes);
+
+	return res;
+}
+
 void mt_mat::get(double* values, basicsys::i32 dims, const basicsys::i32* indexs) const {
 	const u8* ptr_data = ptr<u8>(dims, indexs, 0);
 	mt_mat_helper::get_data(values, ptr_data, depth_channel());
@@ -558,6 +567,13 @@ void mt_mat::get(double* values, basicsys::i32 dims, const basicsys::i32* indexs
 mt_mat mt_mat::clone() const {
 	mt_mat res(m_dims, size(), m_depth_channel);
 	res.set(*this);
+
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
+		res.attach(m_auto_derivative);
+
+		m_auto_derivative->clone(res, *this);
+	}
+
 	return res;
 }
 
@@ -798,6 +814,12 @@ mt_mat mt_mat::reshape(int dims, const int* sizes) const {
 
 	res.fill_auto_step();
 
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
+		res.attach(m_auto_derivative);
+
+		m_auto_derivative->reshape(res, *this);
+	}
+
 	return res;
 }
 
@@ -941,6 +963,12 @@ mt_mat mt_mat::repeat(i32 dims, const i32* nsizes) const {
 		res.set(*this);
 	}
 
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
+		res.attach(m_auto_derivative);
+
+		m_auto_derivative->repeat(res, *this);
+	}
+
 	basicmath_mat_release(dst_sizes);
 
 	return res;
@@ -987,17 +1015,32 @@ mt_mat mt_mat::flip(const vector<int>& dim_indexs) const {
 }
 
 mt_mat mt_mat::flip(int size, const int* dims) const {
-	mt_mat res = *this;
+	basiclog_assert2(size <= dim());
 
-	for (int i = 0; i < size; ++i) {
-		res.m_data += (res.size()[i] - 1) * res.step()[i];
-		res.step()[i] = -res.step()[i];
+	basicmath_mat_request_memory(b8, flip_flags, dim());
+
+	for (i32 i = 0; i < size; ++i) {
+		flip_flags[i] = sys_false;
 	}
+
+	for (i32 i = 0; i < size; ++i) {
+		flip_flags[dims[i]] = sys_true;
+	}
+
+	mt_mat res = flip(dim(), flip_flags);
+
+	basicmath_mat_release(flip_flags);
 
 	return res;
 }
 
-mt_mat mt_mat::flip(const basicsys::b8* flip_flags) const {
+mt_mat mt_mat::flip(const vector<basicsys::b8> flip_flags) const {
+	return flip((i32)flip_flags.size(), &flip_flags[0]);
+}
+
+mt_mat mt_mat::flip(i32 size, const basicsys::b8* flip_flags) const {
+	basiclog_assert2(size == dim());
+
 	mt_mat res = *this;
 
 	for (int i = 0; i < res.m_dims; ++i) {
@@ -1007,16 +1050,25 @@ mt_mat mt_mat::flip(const basicsys::b8* flip_flags) const {
 		}
 	}
 
+	if (m_auto_derivative != NULL && m_auto_derivative->math_operation_recorded()) {
+		res.attach(m_auto_derivative);
+
+		m_auto_derivative->flip(res, *this, size, flip_flags);
+	}
+
 	return res;
 }
 
 mt_mat mt_mat::flip_all_dim() const {
-	mt_mat res = *this;
+	basicmath_mat_request_memory(b8, flip_flags, dim());
 
-	for (int i = 0; i < res.m_dims; ++i) {
-			res.m_data += (res.size()[i] - 1) * res.step()[i];
-			res.step()[i] = -res.step()[i];
+	for (i32 i = 0; i < dim(); ++i) {
+		flip_flags[i] = sys_true;
 	}
+
+	mt_mat res = flip(dim(), flip_flags);
+
+	basicmath_mat_release(flip_flags);
 
 	return res;
 }
@@ -1170,10 +1222,7 @@ mt_mat mt_mat::sub(i32 dims, const mt_range* ranges) const {
 	if (m_auto_derivative != NULL) {
 		res.attach(m_auto_derivative);
 
-		vector<mt_range> vec_ranges;
-		mt_helper::vec_from_array(vec_ranges, dims, ranges);
-
-		m_auto_derivative->sub(res, *this, vec_ranges);
+		m_auto_derivative->sub(res, *this, dims, ranges);
 	}
 
 	return res;
@@ -1313,7 +1362,7 @@ void mt_mat::get_index(vector<int>& index, const u8* ptr_data) const {
 			flip_flags[i] = step()[i] > 0 ? sys_false : sys_true;
 		}
 
-		mt_mat temp_with_positive_step = flip(flip_flags);
+		mt_mat temp_with_positive_step = flip(m_dims, flip_flags);
 		temp_with_positive_step.get_index(index, ptr_data);
 
 		for (i32 i = 0; i < m_dims; ++i) {
